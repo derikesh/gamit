@@ -1,103 +1,98 @@
-import Image from "next/image";
+import NavHeader from "@/src/components/NavHeader";
+import QuickThinkArena from "@/src/components/QuickThinkArena";
 
-export default function Home() {
+export default function Dashboard() {
+  const games = [
+    {
+      id: 1,
+      title: 'Quick Think Arena',
+      description: 'How many valid words can you think of?',
+      path: '/games/quickThinkArena',
+      emoji: '🧠'
+    },
+    {
+      id: 2,
+      title: 'Demo Game',
+      description: 'Test your skills in this interactive demo',
+      path: '/games/demo',
+      emoji: '🎮'
+    }
+  ];
+
+  const upcomingGames = [
+    {
+      title: 'Space Invaders',
+      description: 'Defend Earth from alien invasion',
+      path: '/games/space-invaders',
+      emoji: '👾'
+    },
+    {
+      title: 'Puzzle Quest',
+      description: 'Solve mind-bending puzzles with friends',
+      path: '/games/puzzle-quest',
+      emoji: '🧩'
+    },
+    {
+      title: 'Racing Legends',
+      description: 'Compete in high-speed racing tournaments',
+      path: '/games/racing-legends',
+      emoji: '🏎️'
+    }
+  ];
+
+  // Sample players data with avatars
+ 
+
+  let isUpcoming = false;
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="min-h-screen p-8">
+      <div className="max-w-[1600px] mx-auto relative">
+        <NavHeader/>
+        
+        {/* Active Games Grid */}
+        <div className="grid grid-cols-1 gap-8">
+          {games.map((game) => (
+            <div key={game.id} className="bg-[#1e293b]/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-colors duration-300">
+              { 
+                <QuickThinkArena {...game} />
+              
+              }
+            </div>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* Coming Soon Section */}
+        <div className="mt-16">
+          <h2 className="text-3xl press font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+            Coming Soon
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {upcomingGames.map((game) => (
+              <div key={game.path} className="bg-[#1e293b]/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-colors duration-300">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start gap-4">
+                    <span className="text-3xl">{game.emoji}</span>
+                    <div>
+                      <h2 className="font-press text-xl font-bold text-white mb-1">
+                        {game.title}
+                      </h2>
+                      <p className="text-gray-400 font-orbitron text-sm">{game.description}</p>
+                    </div>
+                  </div>
+                  <button 
+                    disabled
+                    className="group relative px-6 py-2.5 bg-transparent border border-purple-500/20 rounded-lg overflow-hidden transition-all duration-300 cursor-not-allowed"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="relative text-white font-geist-mono text-sm">Coming Soon</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
