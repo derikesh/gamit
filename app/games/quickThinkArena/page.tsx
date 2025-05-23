@@ -18,7 +18,6 @@ export default function page() {
   const [timer, setTime] = useState<number>(60);
   const [ finishGame , setFinishGame ] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  // const timerRef = useRef<any>(undefined);
 
   const validLetters = ["R","S","A","H","J","K","B","D"];
 
@@ -30,6 +29,10 @@ export default function page() {
     }
     if (keyword[0].toUpperCase() !== validLetters[index]) {
       setError(`Word must start with '${validLetters[index]}'!`);
+      return;
+    }
+    if( arr.includes(keyword) ){
+      setError("Word already entered");
       return;
     }
     setArr((prev) => [...prev, keyword]);
@@ -102,7 +105,7 @@ export default function page() {
           <div className={`flex justify-center gap-4 mb-8 ${isGameStarted || finishGame ? 'hidden' : 'flex'}`}>
             <button 
               onClick={handleStartGame}
-              className="group relative px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] transform hover:scale-105"
+              className="group relative hover:cursor-pointer px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] transform hover:scale-105"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <span className="relative text-white font-geist-mono text-sm flex items-center gap-2">
@@ -112,9 +115,9 @@ export default function page() {
             </button>
             <button 
               onClick={() => setIndex((index + 1) % validLetters.length)}
-              className="group relative px-6 py-3 bg-transparent border border-purple-500/20 rounded-lg overflow-hidden transition-all duration-300 hover:border-purple-500/50 transform hover:scale-105"
+              className="group relative px-6 py-3 hover:cursor-pointer bg-gradient-to-r from-cyan-800 to-blue-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transform hover:scale-105"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <span className="relative text-white font-geist-mono text-sm flex items-center gap-2">
                 <span>Change Letter</span>
                 <span className="text-lg">🎲</span>
@@ -196,7 +199,7 @@ export default function page() {
           </div>
 
           {/* Word List */}
-          <div className="bg-[#1e293b]/50 rounded-lg p-6 border border-purple-500/20 transform transition-all duration-500 ease-in-out hover:shadow-[0_0_20px_rgba(147,51,234,0.2)]">
+          <div className={`${isGameStarted ? 'block' : 'hidden'} bg-[#1e293b]/50 rounded-lg p-6 border border-purple-500/20 transform transition-all duration-500 ease-in-out hover:shadow-[0_0_20px_rgba(147,51,234,0.2)]`}>
             <h3 className="text-sm text-gray-400 font-geist-mono mb-4">
               Your Words: <span className="font-bold font-2xl animate-bounce bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent px-2">{arr.length}</span>
             </h3>

@@ -50,13 +50,13 @@ export default function Dashboard() {
       <div className="max-w-[1600px] mx-auto relative">
         <NavHeader/>
         
+        
         {/* Active Games Grid */}
         <div className="grid grid-cols-1 gap-8">
           {games.map((game) => (
             <div key={game.id} className="bg-[#1e293b]/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-colors duration-300">
               { 
                 <QuickThinkArena {...game} />
-              
               }
             </div>
           ))}

@@ -28,15 +28,15 @@ export default function NavHeader() {
 
         <button
         onClick={ ()=>setOpenSign(true) }
-        className="group relative px-6 py-2.5 bg-transparent border border-purple-500/20 hover:border-purple-500/50 rounded-lg overflow-hidden transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        className="group hover:cursor-pointer relative px-6 py-2.5 bg-transparent border border-purple-500/20 hover:border-purple-500/50 rounded-lg overflow-hidden transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group hover:cursor-pointer-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative text-white font-geist-mono text-sm">Login</span>
           </button>
           
           <button
         onClick={ ()=>setOpen(true) }
           
-          className="group relative px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_15px_rgba(147,51,234,0.5)]">
+          className="group hover:cursor-pointer relative px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_15px_rgba(147,51,234,0.5)]">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative text-white font-geist-mono text-sm">Create User</span>
           </button>
@@ -50,7 +50,7 @@ export default function NavHeader() {
       </div>
 
       <SignupModal isOpen={open} onClose={()=>{setOpen(false)}} />
-      <LoginModal isOpen={openSign} onClose={()=>setOpenSign(false)} />
+      <LoginModal signUp={()=>setOpen(true)} isOpen={openSign} onClose={()=>setOpenSign(false)} />
 
     </div>
   );
