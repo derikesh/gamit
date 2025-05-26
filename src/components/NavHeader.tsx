@@ -8,7 +8,7 @@ export default function NavHeader() {
 
 
   const [open, setOpen] = useState(false);
-  const [openSign, setOpenSign] = useState(false);
+  const [openSign, setOpenLog] = useState(false);
 
 
 
@@ -27,7 +27,7 @@ export default function NavHeader() {
         <div className="flex gap-4">
 
         <button
-        onClick={ ()=>setOpenSign(true) }
+        onClick={ ()=>setOpenLog(true) }
         className="group hover:cursor-pointer relative px-6 py-2.5 bg-transparent border border-purple-500/20 hover:border-purple-500/50 rounded-lg overflow-hidden transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group hover:cursor-pointer-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative text-white font-geist-mono text-sm">Login</span>
@@ -49,8 +49,8 @@ export default function NavHeader() {
         </p>
       </div>
 
-      <SignupModal isOpen={open} onClose={()=>{setOpen(false)}} />
-      <LoginModal signUp={()=>setOpen(true)} isOpen={openSign} onClose={()=>setOpenSign(false)} />
+      <SignupModal isOpen={open} onClose={()=>{setOpen(false)}} logOpen={()=>setOpenLog(true)} />
+      <LoginModal signUp={()=>setOpen(true)} isOpen={openSign} onClose={()=>setOpenLog(false)} />
 
     </div>
   );

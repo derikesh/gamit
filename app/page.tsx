@@ -1,6 +1,7 @@
 import NavHeader from "@/src/components/NavHeader";
 import QuickThinkArena from "@/src/components/QuickThinkArena";
 
+
 export default function Dashboard() {
   const games = [
     {

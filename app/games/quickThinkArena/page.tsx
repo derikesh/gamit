@@ -19,7 +19,7 @@ export default function page() {
   const [ finishGame , setFinishGame ] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const validLetters = ["R","S","A","H","J","K","B","D"];
+  const validLetters = ["A","S","R","H","J","K","B","D"];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

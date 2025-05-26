@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import Leaderboard from './Leaderboard';
 
+
+import {prisma} from '../../app/lib/prisma/prisma';
+
 interface QuickThinkArenaProps {
   title: string;
   description: string;
@@ -9,9 +12,20 @@ interface QuickThinkArenaProps {
   id: number;
 }
 
-export default function QuickThinkArena({ title, description, path, emoji, id }: QuickThinkArenaProps) {
+export default async function QuickThinkArena({ title, description, path, emoji, id }: QuickThinkArenaProps) {
+
+  const words = await prisma.user.findMany();
+
   return (
     <div className="flex gap-6">
+
+      <div>
+        {words.map( (item)=>(
+          <div key={item.id} >{item.username}</div>
+        ) )}
+      </div>
+
+
       {/* Game Content */}
       <div className="flex-1 flex flex-col gap-6">
         {/* Game Info */}
