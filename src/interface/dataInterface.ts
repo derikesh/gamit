@@ -6,3 +6,4 @@ export interface USER_INTERFACE {
     password: string,
     score?: any[]
 }
+

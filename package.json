@@ -11,6 +11,9 @@
   "dependencies": {
     "@prisma/client": "^6.8.2",
     "@radix-ui/react-dialog": "^1.1.14",
+    "@types/bcrypt": "^5.0.2",
+    "bad-words": "^4.0.0",
+    "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.5.0",
@@ -21,10 +24,12 @@
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

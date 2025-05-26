@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createUser } from '../../app/lib/prisma/actions/createUset';
+import { createUser } from '../../app/lib/prisma/actions/userActions';
 import CustomToast from './CustomToast';
 import { motion, AnimatePresence } from 'framer-motion';
+
+import { checkBadWord } from '../varibles/badWords';
+
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -19,7 +22,7 @@ const avatars = [
   'https://picsum.photos/seed/player5/200',
 ];
 
-const MAX_USERNAME_LENGTH = 10;
+const MAX_USERNAME_LENGTH = 15;
 const MIN_USERNAME_LENGTH = 3;
 
 export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalProps) {
@@ -63,6 +66,8 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
       newErrors.username = `Username must be at least ${MIN_USERNAME_LENGTH} characters`;
     } else if (formData.username.length > MAX_USERNAME_LENGTH) {
       newErrors.username = `Username must be at most ${MAX_USERNAME_LENGTH} characters`;
+    }else if( !checkBadWord(formData.username) ){
+      newErrors.username = `Username failed try another`
     }
 
     if (formData.email && !validateEmail(formData.email)) {
@@ -111,7 +116,7 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
               email:'',
               password:''
             });
-          }, 1000);
+          }, 1500);
         }
       } catch (error: any) {
         console.error('Error creating user:', error);
@@ -125,6 +130,7 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
       }
     }
   };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

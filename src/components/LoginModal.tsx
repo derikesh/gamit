@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { loginUser } from '@/app/lib/prisma/actions/userActions';
+import CustomToast from './CustomToast';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -20,9 +22,46 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
     password: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success' as 'success' | 'error' | 'info'
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    setIsLoading(true);
+
+    try {
+      const result = await loginUser({
+        username: formData.username,
+        password: formData.password
+      });
+
+      if (result) {
+        setToast({
+          isVisible: true,
+          message: `Welcome back, ${result.user}! 🎮`,
+          type: 'success'
+        });
+
+        // Close modal after successful login
+        setTimeout(() => {
+          onClose();
+          // Reset form
+          setFormData({ username: '', password: '' });
+        }, 1500);
+      }
+    } catch (error: any) {
+      setToast({
+        isVisible: true,
+        message: error.message || 'Failed to login. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,11 +148,14 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
 
               <button
                 type="submit"
-                className="w-full group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:scale-[1.02]"
+                disabled={isLoading}
+                className={`w-full group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:scale-[1.02] ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative text-white font-geist-mono text-sm font-medium">
-                  Sign In
+                  {isLoading ? 'Signing in...' : 'Sign In'}
                 </span>
               </button>
 
@@ -132,6 +174,14 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
               </p>
             </form>
           </motion.div>
+
+          <CustomToast
+            isVisible={toast.isVisible}
+            message={toast.message}
+            type={toast.type}
+            modelOPen={isOpen}
+            onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+          />
         </motion.div>
       )}
     </AnimatePresence>
