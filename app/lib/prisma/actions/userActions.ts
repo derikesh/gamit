@@ -4,7 +4,7 @@ import {prisma} from '../prisma';
 import { USER_INTERFACE } from '@/src/interface/dataInterface';
 import bcrypt from 'bcrypt';
 import { cookies } from 'next/headers';
-
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -12,8 +12,9 @@ dotenv.config();
 // token sigurations 
 const tokenSignature = process.env.JWT_SECRET;
 // for login
-import jwt from 'jsonwebtoken';
 
+
+// server action for creating a new users
 export const createUser = async ({username, email, password, avatar}: USER_INTERFACE) => {
 
   'use server'
@@ -43,6 +44,10 @@ interface LoginInterface {
   password:string
 }
 
+
+
+
+// Server action for login method
 export const loginUser = async ({username, password}:LoginInterface) => {
 
   'use server'
@@ -95,3 +100,40 @@ export const loginUser = async ({username, password}:LoginInterface) => {
 
 
 
+// server action to check the user authentication 
+export const currentUser = async () => {
+  try {
+    const userCookies = (await cookies()).get('gameit_token')?.value;
+
+    if (!userCookies || !tokenSignature) return null;
+
+    const validToken = jwt.verify(userCookies, tokenSignature) as { userId: number };
+
+    if (!validToken?.userId) return null;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: validToken.userId
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        avatar: true,
+        score:true
+      }
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Current user error:', error);
+    return null;
+  }
+}
+
+
+
+// server action for loutout 
+export const userLogout = async ()=>{
+    return  (await cookies()).delete('gameit_token');
+}

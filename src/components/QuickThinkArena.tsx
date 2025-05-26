@@ -19,13 +19,6 @@ export default async function QuickThinkArena({ title, description, path, emoji,
   return (
     <div className="flex gap-6">
 
-      <div>
-        {words.map( (item)=>(
-          <div key={item.id} >{item.username}</div>
-        ) )}
-      </div>
-
-
       {/* Game Content */}
       <div className="flex-1 flex flex-col gap-6">
         {/* Game Info */}
