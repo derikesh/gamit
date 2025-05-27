@@ -3,22 +3,33 @@
 import SignupModal from "./SignupModal";
 import LoginModal from "./LoginModal";
 import { useState, useEffect } from "react";
-// import { currentUser } from "@/app/lib/prisma/actions/userActions";
-
+import { currentUser } from "@/app/lib/prisma/actions/userActions";
 import { gameitStore } from "../store/store";
+import { userLogout } from "@/app/lib/prisma/actions/userActions";
+
 export default function NavHeader() {
   const [open, setOpen] = useState(false);
   const [openSign, setOpenLog] = useState(false);
-  const { activeUser, setUser } = gameitStore();
+  const { activeUser, setUser, removeUser } = gameitStore();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      if (activeUser) {
-        setUser(activeUser);
-      }
-    };
-    checkUser();
-  }, [setUser]);
+  function handleLogout(){
+        try{
+          userLogout();
+          removeUser();
+        }catch(err){
+          throw err;
+        }
+  }
+
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const currentUserData = await currentUser();
+  //     if (currentUserData) {
+  //       setUser(currentUserData);
+  //     }
+  //   };
+  //   checkUser();
+  // }, [setUser]);
 
   return (
     <div className="flex justify-between items-center mb-12">
@@ -33,6 +44,8 @@ export default function NavHeader() {
 
       <div className="flex flex-col items-end gap-2">
         <div className="flex gap-4 items-center">
+         
+
           {activeUser ? (
             <>
               <div className="flex items-center gap-3">
@@ -42,7 +55,7 @@ export default function NavHeader() {
                 <span className="text-white font-geist-mono">{activeUser.username}</span>
               </div>
               <button
-                onClick={() => {/* Logout handler will go here */}}
+                onClick={handleLogout}
                 className="group hover:cursor-pointer relative px-4 py-2 bg-transparent border border-red-500/20 hover:border-red-500/50 rounded-lg overflow-hidden transition-all duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -68,7 +81,9 @@ export default function NavHeader() {
               </button>
             </>
           )}
+
         </div>
+        
         {!activeUser && (
           <p className="text-xs text-gray-400 font-geist-mono">
             Quick setup, no personal data required

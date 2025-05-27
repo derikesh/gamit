@@ -46,7 +46,6 @@ interface LoginInterface {
 
 
 
-
 // Server action for login method
 export const loginUser = async ({username, password}:LoginInterface) => {
 
@@ -60,7 +59,7 @@ export const loginUser = async ({username, password}:LoginInterface) => {
   try {
     // Find user by username
     const user = await prisma.user.findFirst({
-      where: { username }
+      where: { username },
     });
 
     if (!user) {
@@ -90,7 +89,12 @@ export const loginUser = async ({username, password}:LoginInterface) => {
       sameSite:'lax'
     } )
 
-    return { user : user.username };
+    return { user : {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+    } };
 
   } catch (error) {
     console.error('Login error:', error);
@@ -102,6 +106,9 @@ export const loginUser = async ({username, password}:LoginInterface) => {
 
 // server action to check the user authentication 
 export const currentUser = async () => {
+
+  'use server'
+
   try {
     const userCookies = (await cookies()).get('gameit_token')?.value;
 
@@ -135,5 +142,14 @@ export const currentUser = async () => {
 
 // server action for loutout 
 export const userLogout = async ()=>{
-    return  (await cookies()).delete('gameit_token');
+
+    'use server'
+
+      try{
+        (await cookies()).delete('gameit_token');
+        return { success: true, message: 'User logged out' };
+      }catch(err){
+        console.error(`logout error ${err}`)
+        throw err;
+      }
 }

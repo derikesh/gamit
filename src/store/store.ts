@@ -3,15 +3,8 @@ import {create} from 'zustand'
 interface User {
     id: number;
     username: string;
-    email: string | null;
+    email?: string | null;
     avatar: number;
-    score?: {
-        id: number;
-        score: number;
-        userId: number;
-        gameId: number;
-        createdAt: Date;
-    }[];
 }
 
 interface USER_STORE_INTERFACE {

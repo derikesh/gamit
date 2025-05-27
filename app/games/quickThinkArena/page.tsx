@@ -6,9 +6,14 @@ import Link from "next/link";
 import allword from "./filtered_valid_words.json";
 import Leaderboard from "@/src/components/Leaderboard";
 
+import LeaderboardPage from "@/src/components/LeaderBoardEach";
+
 export default function page() {
   const sets = new Set(allword);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
 
   const [keyword, setKeyword] = useState("");
   // const [sets, setsets] = useState<any>();
@@ -23,12 +28,13 @@ export default function page() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sets.has(keyword)) {
-      setError("Not a valid word!");
-      return;
-    }
+   
     if (keyword[0].toUpperCase() !== validLetters[index]) {
       setError(`Word must start with '${validLetters[index]}'!`);
+      return;
+    }
+    if (!sets.has(keyword)) {
+      setError("Not a valid word!");
       return;
     }
     if( arr.includes(keyword) ){
@@ -53,7 +59,7 @@ export default function page() {
   useEffect(() => {
     if (!isGameStarted ) return;
 
-      let timerId = setInterval(() => {
+    timerRef.current = setInterval(() => {
         setTime((prev) => {
           if (prev <= 1) {
             setIsGameStarted(false);
@@ -65,7 +71,11 @@ export default function page() {
 
       }, 1000);
 
-      return ()=>clearInterval(timerId);
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      };
       
   }, [isGameStarted]);
 
@@ -76,7 +86,11 @@ export default function page() {
         {/* Header with Back Button */}
         <div className="flex items-center mb-8">
           <Link href="/">
-            <button className="group relative px-4 py-2 bg-transparent border border-purple-500/20 hover:border-purple-500/50 rounded-lg overflow-hidden transition-all duration-300">
+            <button onClick={() => {
+              if (timerRef.current) {
+                clearInterval(timerRef.current);
+              }
+            }} className="group relative px-4 py-2 bg-transparent border border-purple-500/20 hover:border-purple-500/50 rounded-lg overflow-hidden transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <span className="relative text-white font-geist-mono text-sm">
                 ← Back
@@ -153,7 +167,7 @@ export default function page() {
               </button>
             </div>
 
-            <Leaderboard key={1} gameId={1} />
+            {/* <Leaderboard key={1} gameId={1} /> */}
           </div>
 
           {/* time */}
@@ -215,8 +229,10 @@ export default function page() {
             </div>
           </div>
 
+
         </div>
       </div>
+         <LeaderboardPage isGameStarted={isGameStarted} finishGame={finishGame} />
     </main>
   );
 }

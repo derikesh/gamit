@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { loginUser } from '@/app/lib/prisma/actions/userActions';
 import CustomToast from './CustomToast';
 
+import { gameitStore } from '../store/store';
+
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,6 +23,8 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
     username: '',
     password: ''
   });
+
+  const { setUser } = gameitStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState({
@@ -40,9 +44,10 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
       });
 
       if (result) {
+        setUser(result.user);
         setToast({
           isVisible: true,
-          message: `Welcome back, ${result.user}! 🎮`,
+          message: `Welcome back, ${result.user.username}! 🎮`,
           type: 'success'
         });
 
