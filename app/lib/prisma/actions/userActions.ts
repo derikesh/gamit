@@ -153,3 +153,42 @@ export const userLogout = async ()=>{
         throw err;
       }
 }
+
+
+
+
+// add email function 
+
+export const updateUser = async ({ id, username, email, password, avatar }:USER_INTERFACE)=>{
+
+   try {
+
+    const updateData:any = {}
+
+    if(username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (avatar !== undefined) updateData.avatar = avatar;
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    const validUser = prisma.user.update({
+      where:{id:id},
+      data:updateData,
+      select:{
+        id:true,
+        username:true,
+        email:true,
+        avatar:true
+      }
+    });
+
+    return { message:'email updated successfully', data : (await validUser).username };
+
+   }catch(err){
+    console.error(`Error adding email ${err}`);
+    throw err;
+   }
+
+}

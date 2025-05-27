@@ -3,33 +3,36 @@
 import SignupModal from "./SignupModal";
 import LoginModal from "./LoginModal";
 import { useState, useEffect } from "react";
-import { currentUser } from "@/app/lib/prisma/actions/userActions";
 import { gameitStore } from "../store/store";
 import { userLogout } from "@/app/lib/prisma/actions/userActions";
+
+import { USERDATA_INTERFACE } from "../store/store";
 
 export default function NavHeader() {
   const [open, setOpen] = useState(false);
   const [openSign, setOpenLog] = useState(false);
-  const { activeUser, setUser, removeUser } = gameitStore();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { activeUser, removeUser } = gameitStore();
+
+  const [editProfile, setEditProfile] = useState<USERDATA_INTERFACE | null>(null);
 
   function handleLogout(){
-        try{
-          userLogout();
-          removeUser();
-        }catch(err){
-          throw err;
-        }
+    try{
+      userLogout();
+      removeUser();
+      setShowUserMenu(false);
+    }catch(err){
+      throw err;
+    }
   }
 
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     const currentUserData = await currentUser();
-  //     if (currentUserData) {
-  //       setUser(currentUserData);
-  //     }
-  //   };
-  //   checkUser();
-  // }, [setUser]);
+
+    function handleEmail(){
+        if(activeUser){
+          setEditProfile(activeUser);
+          setOpen(true);
+        }
+    }
 
   return (
     <div className="flex justify-between items-center mb-12">
@@ -44,24 +47,41 @@ export default function NavHeader() {
 
       <div className="flex flex-col items-end gap-2">
         <div className="flex gap-4 items-center">
-         
-
           {activeUser ? (
-            <>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                  {activeUser.username[0].toUpperCase()}
-                </div>
-                <span className="text-white font-geist-mono">{activeUser.username}</span>
-              </div>
+            <div className="relative">
               <button
-                onClick={handleLogout}
-                className="group hover:cursor-pointer relative px-4 py-2 bg-transparent border border-red-500/20 hover:border-red-500/50 rounded-lg overflow-hidden transition-all duration-300"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-3 group hover:cursor-pointer"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative text-white font-geist-mono text-sm">Logout</span>
+                <div className="w-10 h-10 overflow-hidden rounded-full bg-white/80 flex items-center justify-center text-white font-bold">
+                  <img src={`/images/avatars/${activeUser.avatar}.png`} className="scale-[1.2] h-full w-full mt-1" alt="" />
+                </div>
+                <span className="text-white font-geist-mono group-hover:text-purple-300 transition-colors">
+                  {activeUser.username}
+                </span>
               </button>
-            </>
+
+              {/* Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute hover:cursor-pointer right-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-md border border-purple-500/20 rounded-lg shadow-lg overflow-hidden z-50">
+                   <button
+                        onClick={handleEmail}
+                        className="w-full hover:cursor-pointer px-4 py-3 text-left text-white font-geist-mono text-sm hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                        >
+                        <span>Edit Profile</span>
+                        <span className="text-red-400">+</span>
+                  </button> 
+                  <button
+                    onClick={handleLogout}
+                    className="w-full hover:cursor-pointer px-4 py-3 text-left text-white font-geist-mono text-sm hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                  >
+                    <span>Logout</span>
+                    <span className="text-red-400">→</span>
+                  </button>
+                        
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <button
@@ -81,7 +101,6 @@ export default function NavHeader() {
               </button>
             </>
           )}
-
         </div>
         
         {!activeUser && (
@@ -91,7 +110,7 @@ export default function NavHeader() {
         )}
       </div>
 
-      <SignupModal isOpen={open} onClose={() => setOpen(false)} logOpen={() => setOpenLog(true)} />
+      <SignupModal isOpen={open} onClose={() => setOpen(false)} logOpen={() => setOpenLog(true)} editProfile={editProfile} />
       <LoginModal signUp={() => setOpen(true)} isOpen={openSign} onClose={() => setOpenLog(false)} />
     </div>
   );

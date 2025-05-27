@@ -1,37 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createUser } from '../../app/lib/prisma/actions/userActions';
 import CustomToast from './CustomToast';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { USERDATA_INTERFACE } from '../store/store';
+
 import { checkBadWord } from '../varibles/badWords';
 
+import { updateUser } from '../../app/lib/prisma/actions/userActions';
+
+import { gameitStore } from '../store/store';
 
 interface SignupModalProps {
   isOpen: boolean;
   onClose: () => void;
   logOpen : ()=>void;
+  editProfile:USERDATA_INTERFACE | null
 }
 
-const avatars = [
-  'https://picsum.photos/seed/player1/200',
-  'https://picsum.photos/seed/player2/200',
-  'https://picsum.photos/seed/player3/200',
-  'https://picsum.photos/seed/player4/200',
-  'https://picsum.photos/seed/player5/200',
-];
+const avatars = [1,2,3,4,5];
 
 const MAX_USERNAME_LENGTH = 15;
 const MIN_USERNAME_LENGTH = 3;
 
-export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalProps) {
+export default function SignupModal({ isOpen, onClose, logOpen , editProfile=null }: SignupModalProps) {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    avatar: avatars[0]
+    avatar: 1
   });
 
   const [errors, setErrors] = useState({
@@ -48,6 +48,22 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
     type: 'success' as 'success' | 'error' | 'info'
   });
 
+  const { activeUser, setTempCredentials } =  gameitStore();
+
+
+  // to update the form 
+  useEffect(() => {
+    if (editProfile) {
+      setFormData({
+        username: editProfile.username || '',
+        email: editProfile.email || '',
+        password: '',
+        confirmPassword: '',
+        avatar: editProfile.avatar || 1
+      });
+    }
+  }, [editProfile]);
+  
   const validateEmail = (email: string) => {
     if (!email) return true;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -74,9 +90,11 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
       newErrors.email = 'Please enter a valid email address';
     }
 
+   if(!editProfile){
     if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
+   }
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
@@ -93,25 +111,43 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
       setIsLoading(true);
       try {
         const avatarIndex = avatars.indexOf(formData.avatar) + 1;
-        const result = await createUser({
-          username: formData.username,
-          email: formData.email || undefined,
-          password: formData.password,
-          avatar: avatarIndex
-        });
+        let result :any
+        if(editProfile){
+           result = await updateUser({
+            id:activeUser?.id,
+            username: formData.username,
+            email: formData.email || undefined,
+            password: formData?.password,
+            avatar: avatarIndex
+          })
+        }else{
+           result = await createUser({
+            username: formData.username,
+            email: formData.email || undefined,
+            password: formData.password,
+            avatar: avatarIndex
+          });
+        }
 
         if (result) {
+          // Save credentials for login
+          setTempCredentials({
+            username: formData.username,
+            password: formData.password
+          });
+
           setToast({
             isVisible: true,
-            message: 'Account created successfully! Welcome to Gameit 🎮',
+            message: editProfile ? 'Profile updated successfully!' : 'Account created successfully! Welcome to Gameit 🎮',
             type: 'success'
           });
-         const timerid = setTimeout(() => {
+
+         setTimeout(() => {
             onClose();
-            logOpen();
+            editProfile ?? logOpen();
             setFormData({
               username:'',
-              avatar:'',
+              avatar:1,
               confirmPassword:'',
               email:'',
               password:''
@@ -130,6 +166,7 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
       }
     }
   };
+
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,11 +201,13 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
 
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-white font-geist-mono">
-                Create Your Account
+                { editProfile ? 'Edit Profile' : 'Create Your Account' } 
               </h2>
-              <p className="text-gray-400 font-geist-mono text-sm mt-2">
+              { !editProfile &&
+                <p className="text-gray-400 font-geist-mono text-sm mt-2">
                 Join the word game community
               </p>
+              }
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -190,9 +229,9 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
                       }`}
                     >
                       <img
-                        src={avatar}
+                        src={`/images/avatars/${avatar}.png`}
                         alt={`Avatar ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover mt-1 scale-[1.2]"
                       />
                     </button>
                   ))}
@@ -247,7 +286,7 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
 
                 <div className="space-y-1">
                   <label htmlFor="password" className="block text-sm font-geist-mono text-gray-300">
-                    Password
+                    { editProfile ? 'New' : '' } Password
                   </label>
                   <input
                     type="password"
@@ -259,7 +298,7 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
                       errors.password ? 'border-red-500/50' : 'border-white/10'
                     } rounded-xl text-white font-geist-mono placeholder-gray-500 focus:outline-none focus:border-cyan-400/50 transition-all duration-300 focus:ring-2 focus:ring-cyan-400/20`}
                     placeholder="Create a password"
-                    required
+                    required={!editProfile}
                   />
                   {errors.password && (
                     <p className="text-sm text-red-400 font-geist-mono">{errors.password}</p>
@@ -280,7 +319,7 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
                       errors.confirmPassword ? 'border-red-500/50' : 'border-white/10'
                     } rounded-xl text-white font-geist-mono placeholder-gray-500 focus:outline-none focus:border-cyan-400/50 transition-all duration-300 focus:ring-2 focus:ring-cyan-400/20`}
                     placeholder="Confirm your password"
-                    required
+                    required={!editProfile}
                   />
                   {errors.confirmPassword && (
                     <p className="text-sm text-red-400 font-geist-mono">{errors.confirmPassword}</p>
@@ -291,13 +330,13 @@ export default function SignupModal({ isOpen, onClose, logOpen }: SignupModalPro
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:scale-[1.02] ${
+                className={`w-full hover:cursor-pointer group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transform hover:scale-[1.02] ${
                   isLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative text-white font-geist-mono text-sm font-medium">
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                  {isLoading ? editProfile ? 'Updataing Account...' : 'Creating Account...' : editProfile ? 'Update Accoundt' : 'Create Account'}
                 </span>
               </button>
             </form>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { loginUser } from '@/app/lib/prisma/actions/userActions';
 import CustomToast from './CustomToast';
@@ -25,13 +25,25 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
   });
 
   const { setUser } = gameitStore();
+  const { tempCredentials, setTempCredentials } = gameitStore();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState({
     isVisible: false,
     message: '',
     type: 'success' as 'success' | 'error' | 'info'
   });
+
+  // Use temp credentials when modal opens
+  useEffect(() => {
+    if (isOpen && tempCredentials) {
+      setFormData({
+        username: tempCredentials.username,
+        password: tempCredentials.password
+      });
+    }
+  }, [isOpen, tempCredentials]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +57,8 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
 
       if (result) {
         setUser(result.user);
+        // Clear temp credentials after successful login
+        setTempCredentials(null);
         setToast({
           isVisible: true,
           message: `Welcome back, ${result.user.username}! 🎮`,
@@ -134,18 +148,30 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
                 <label htmlFor="password" className="block text-sm font-geist-mono text-gray-300">
                   Password
                 </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2.5 bg-white/5 border ${
-                    errors.password ? 'border-red-500/50' : 'border-white/10'
-                  } rounded-xl text-white font-geist-mono placeholder-gray-500 focus:outline-none focus:border-cyan-400/50 transition-all duration-300 focus:ring-2 focus:ring-cyan-400/20`}
-                  placeholder="Enter your password"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 bg-white/5 border ${
+                      errors.password ? 'border-red-500/50' : 'border-white/10'
+                    } rounded-xl text-white font-geist-mono placeholder-gray-500 focus:outline-none focus:border-cyan-400/50 transition-all duration-300 focus:ring-2 focus:ring-cyan-400/20`}
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  >
+                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 font-geist-mono flex items-center gap-1">
+                  <span className="text-cyan-400">🔒</span> Your password is securely hashed and never stored in plain text
+                </p>
                 {errors.password && (
                   <p className="text-sm text-red-400 font-geist-mono">{errors.password}</p>
                 )}

@@ -1,6 +1,6 @@
 import {create} from 'zustand'
 
-interface User {
+export interface USERDATA_INTERFACE {
     id: number;
     username: string;
     email?: string | null;
@@ -8,9 +8,11 @@ interface User {
 }
 
 interface USER_STORE_INTERFACE {
-    activeUser: User | null;
-    setUser: (user: User) => void;
+    activeUser: USERDATA_INTERFACE | null;
+    setUser: (user: USERDATA_INTERFACE) => void;
     removeUser: () => void;
+    tempCredentials: { username: string; password: string } | null;
+    setTempCredentials: (creds: { username: string; password: string } | null) => void;
 }
 
 export const gameitStore = create<USER_STORE_INTERFACE>((set) => ({
@@ -20,5 +22,9 @@ export const gameitStore = create<USER_STORE_INTERFACE>((set) => ({
     }),
     removeUser: () => set({
         activeUser: null
+    }),
+    tempCredentials: null,
+    setTempCredentials: (creds) => set({
+        tempCredentials: creds
     })
 }));
