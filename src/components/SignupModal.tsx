@@ -20,7 +20,7 @@ interface SignupModalProps {
   editProfile:USERDATA_INTERFACE | null
 }
 
-const avatars = [1,2,3,4,5];
+const avatars = [1,2,3,4,5,6,7,8];
 
 const MAX_USERNAME_LENGTH = 15;
 const MIN_USERNAME_LENGTH = 3;
@@ -167,7 +167,17 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
     }
   };
 
-
+  const handleAvatarClick = (avatar: number) => {
+    if (avatar >= 6) {
+      setToast({
+        isVisible: true,
+        message: 'Achieve #1 rank in any game to unlock this premium avatar!',
+        type: 'info'
+      });
+      return;
+    }
+    setFormData({ ...formData, avatar });
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -221,18 +231,26 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
                     <button
                       key={index}
                       type="button"
-                      onClick={() => setFormData({ ...formData, avatar })}
-                      className={`w-15 h-15 rounded-full overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
+                      onClick={() => handleAvatarClick(avatar)}
+                      className={`w-15 h-15 bg-slate-200 rounded-full overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
                         formData.avatar === avatar
                           ? 'border-cyan-400 ring-4 ring-cyan-400/20'
                           : 'border-transparent'
-                      }`}
+                      } ${avatar >= 6 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      // disabled={avatar >= 6}
                     >
-                      <img
-                        src={`/images/avatars/${avatar}.png`}
-                        alt={`Avatar ${index + 1}`}
-                        className="w-full h-full object-cover mt-1 scale-[1.2]"
-                      />
+                      <div className="relative">
+                        <img
+                          src={`/images/avatars/${avatar}.png`}
+                          alt={`Avatar ${index + 1}`}
+                          className="w-full h-full object-cover mt-1 scale-[1.2]"
+                        />
+                        {avatar >= 6 && (
+                          <div className="absolute inset-0 flex items-center justify-center rounded-full">
+                            <span className="text-white text-xl">🔒</span>
+                          </div>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>

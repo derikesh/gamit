@@ -3,7 +3,7 @@ export interface USER_INTERFACE {
     username: string,
     email?: string | undefined,
     avatar: number,
-    password: string,
+    password?: string,
     score?: any[]
 }
 

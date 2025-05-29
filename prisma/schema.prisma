@@ -38,8 +38,5 @@ model Score {
   gameId Int
   score Int
   createdAt DateTime @default(now())
-
-
   @@unique([userId,gameId])
-
 }

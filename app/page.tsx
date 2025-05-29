@@ -1,8 +1,11 @@
 import NavHeader from "@/src/components/NavHeader";
 import QuickThinkArena from "@/src/components/QuickThinkArena";
 
+import { prisma } from "./lib/prisma/prisma";
+import { getGameData } from "./lib/prisma/actions/scores";
 
-export default function Dashboard() {
+export default async function Dashboard() {
+
   const games = [
     {
       id: 1,
@@ -41,10 +44,9 @@ export default function Dashboard() {
     }
   ];
 
-  // Sample players data with avatars
- 
+const allGames = await getGameData();  // Sample players data with avatars
 
-  let isUpcoming = false;
+  console.log(allGames);
 
   return (
     <main className="min-h-screen p-8">
@@ -54,10 +56,10 @@ export default function Dashboard() {
         
         {/* Active Games Grid */}
         <div className="grid grid-cols-1 gap-8">
-          {games.map((game) => (
+          {allGames && allGames.data.map((game) => (
             <div key={game.id} className="bg-[#1e293b]/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-colors duration-300">
               { 
-                <QuickThinkArena {...game} />
+                <QuickThinkArena gameData={game} />
               }
             </div>
           ))}

@@ -48,7 +48,7 @@ export default function page() {
 
   const handleStartGame = () => {
     setIsGameStarted(true);
-    setTime(60);
+    setTime(3);
     const timerID = setTimeout(() => {
       inputRef.current?.focus();
     }, 100);

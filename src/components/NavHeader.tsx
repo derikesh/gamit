@@ -12,17 +12,23 @@ export default function NavHeader() {
   const [open, setOpen] = useState(false);
   const [openSign, setOpenLog] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { activeUser, removeUser } = gameitStore();
 
   const [editProfile, setEditProfile] = useState<USERDATA_INTERFACE | null>(null);
 
-  function handleLogout(){
+  async function handleLogout(){
     try{
-      userLogout();
+      setIsLoggingOut(true);
+      await userLogout();
+      // Add a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
       removeUser();
       setShowUserMenu(false);
     }catch(err){
       throw err;
+    } finally {
+      setIsLoggingOut(false);
     }
   }
 
@@ -33,6 +39,8 @@ export default function NavHeader() {
           setOpen(true);
         }
     }
+
+    console.log('what is active',activeUser);
 
   return (
     <div className="flex justify-between items-center mb-12">
@@ -73,10 +81,13 @@ export default function NavHeader() {
                   </button> 
                   <button
                     onClick={handleLogout}
-                    className="w-full hover:cursor-pointer px-4 py-3 text-left text-white font-geist-mono text-sm hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                    disabled={isLoggingOut}
+                    className={`w-full hover:cursor-pointer px-4 py-3 text-left text-white font-geist-mono text-sm hover:bg-purple-500/20 transition-colors flex items-center gap-2 ${
+                      isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
-                    <span>Logout</span>
-                    <span className="text-red-400">→</span>
+                    <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+                    <span className="text-red-400">{isLoggingOut ? '⌛' : '→'}</span>
                   </button>
                         
                 </div>

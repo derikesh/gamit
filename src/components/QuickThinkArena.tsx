@@ -2,19 +2,17 @@ import Link from 'next/link';
 import Leaderboard from './Leaderboard';
 
 
-import {prisma} from '../../app/lib/prisma/prisma';
-
-interface QuickThinkArenaProps {
-  title: string;
-  description: string;
-  path: string;
-  emoji: string;
+interface GAME_DATA_INTEFACE {
   id: number;
+  title: string;
+  leaderBoard:any
 }
 
-export default async function QuickThinkArena({ title, description, path, emoji, id }: QuickThinkArenaProps) {
+interface PROP_INTEFACE {
+  gameData:GAME_DATA_INTEFACE
+}
 
-  const words = await prisma.user.findMany();
+export default async function QuickThinkArena({ gameData }: PROP_INTEFACE) {
 
   return (
     <div className="flex gap-6">
@@ -24,15 +22,15 @@ export default async function QuickThinkArena({ title, description, path, emoji,
         {/* Game Info */}
         <div className="flex items-start gap-4">
           <div className="relative">
-            <span className="text-4xl animate-pulse">{emoji}</span>
+            <span className="text-4xl animate-pulse">🎒</span>
             <div className="absolute -inset-2 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
           </div>
           <div>
             <h2 className="font-press text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">
-              {title}
+              {gameData.title}
             </h2>
             <p className="text-cyan-300/90 font-geist-mono text-sm leading-relaxed">
-              {description}
+              'THIS IS YOUR CHANCE TO SHINE MY BOY'
             </p>
           </div>
         </div>
@@ -54,7 +52,7 @@ export default async function QuickThinkArena({ title, description, path, emoji,
         </div>
 
         {/* Play Button */}
-        <Link href={path} className='w-fit' >
+        <Link href='/games/quickThinkArena' className='w-fit' >
           <button className="group relative px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300  hover:cursor-pointer hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative text-white font-geist-mono text-sm flex items-center justify-center gap-2">
@@ -67,7 +65,7 @@ export default async function QuickThinkArena({ title, description, path, emoji,
 
       {/* Leaderboard */}
       <div className="w-[300px]">
-        <Leaderboard gameId={id} />
+        <Leaderboard leaderBoard={gameData.leaderBoard} />
       </div>
     </div>
   );

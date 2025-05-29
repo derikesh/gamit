@@ -5,6 +5,7 @@ import { Orbitron } from "next/font/google";
 import { Press_Start_2P } from "next/font/google";
 import { SessionStart } from "@/src/components/SessionStart";
 import { currentUser } from "./lib/prisma/actions/userActions";
+import { cookies } from "next/headers";
 
 const orbitron = Orbitron({
   variable:"--font-orb",
@@ -31,7 +32,16 @@ export default async function RootLayout({
 }>) 
 
 {
-  const user =  await currentUser();
+ let user;
+  try{
+   user = await currentUser();
+  }catch(err:any){
+    if(err.name==='TokenExpiredError'){
+      (await cookies()).delete('gameit_token');
+    }
+  }
+
+  console.log('this is testing',user);
 
   return (
     <html lang="en">

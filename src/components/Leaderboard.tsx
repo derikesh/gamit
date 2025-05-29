@@ -1,8 +1,18 @@
-interface LeaderboardProps {
-  gameId: number;
+import { USER_INTERFACE } from "../interface/dataInterface"
+
+interface SCORETABLE_INTERFACE {
+  id:number,
+  userId:number,
+  gameId:number,
+  score:number,
+  user:USER_INTERFACE
 }
 
-export default function Leaderboard({ gameId }: LeaderboardProps) {
+interface LeaderboardProps {
+  leaderBoard: SCORETABLE_INTERFACE[];
+}
+
+export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
   // Sample players data with avatars
   const players = [
     { id: 1, name: "WordMaster", score: 120, avatar: "https://picsum.photos/seed/player1/200" },
@@ -23,24 +33,26 @@ export default function Leaderboard({ gameId }: LeaderboardProps) {
     }
   };
 
+  console.log('string from insdiesd',leaderBoard);
+
   return (
     <div className="bg-[#1e293b]/50 rounded-lg p-4 border border-purple-500/20">
       <h3 className="text-sm text-gray-400 font-geist-mono mb-4">Top Players</h3>
       <div className="space-y-3">
-        {players.map((player, index) => (
+        {leaderBoard && leaderBoard.map((player, index) => (
           <div 
             key={player.id}
             className="flex items-center gap-3 p-2 bg-[#1e293b]/30 rounded-lg border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 transform hover:scale-[1.02]"
           >
-            <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-purple-500/30">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-purple-500/30">
               <img
-                src={player.avatar}
-                alt={player.name}
-                className="w-full h-full object-cover"
+                src={`/images/avatars/${player.user.avatar}.png`}
+                alt={player.user.username}
+                className="scale-[1.2] h-full w-full mt-[4px] bg-white/60"
               />
             </div>
             <div className="flex-1">
-              <p className="text-white font-geist-mono text-sm">{player.name}</p>
+              <p className="text-white font-geist-mono text-sm">{player.user.username}</p>
             </div>
             <div className="flex items-center gap-1">
               <span className="text-cyan-300 font-press text-sm">{player.score}</span>

@@ -53,7 +53,6 @@ export const loginUser = async ({username, password}:LoginInterface) => {
 
   if(!tokenSignature){
     throw new Error('some error in jwt token');
-    return ;
   } 
 
   try {
@@ -77,7 +76,7 @@ export const loginUser = async ({username, password}:LoginInterface) => {
     const token = jwt.sign(
       { userId: user.id },
       tokenSignature,
-      { expiresIn: '24h' }
+      { expiresIn: '30s' }
     );
 
 
@@ -131,10 +130,16 @@ export const currentUser = async () => {
       }
     });
 
-    return user;
-  } catch (error) {
-    console.error('Current user error:', error);
-    return null;
+    return { user:user, expired:false };
+  } catch (error:any) {
+    if (error.name === 'TokenExpiredError') {
+      console.log('JWT Token has expired. Deleting cookie...');
+      return { expired: true };
+    }else{
+      console.error('Current user error:', error);
+      return null;
+    }
+
   }
 }
 
