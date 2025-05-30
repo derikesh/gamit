@@ -25,7 +25,9 @@ export const getGameData = async ()=>{
                             user:{
                                 select:{
                                     username:true,
-                                    avatar:true
+                                    avatar:true,
+                                    score:true,
+                                    id:true
                                 }
                             }
                         }
@@ -104,4 +106,65 @@ export const gameIdScore = async ( {gameId}:{gameId:number} )=>{
         console.log('Game score Fetch Error',err);
     }
 
+}
+
+
+
+// update new high score
+
+interface NewHighScore {
+    userId:number,
+    newScore:number,
+    gameId:number
+}
+
+export const newHighScore = async ( { userId, newScore ,gameId}:NewHighScore )=>{
+            
+        try{
+
+            const userUpdate = await prisma.score.update({
+                where:{
+                    id:gameId,
+                    userId,
+                },data:{
+                    score:newScore
+                },
+                select:{
+                    score:true
+                }
+            })
+
+            return { message:'Scored Updated Successfully ',data:userUpdate }
+
+        }catch(err){
+            console.log('Error Updateing Score : ',err);
+            throw err;
+        }
+
+}
+
+export async function getUserScore({ userId, gameId }: { userId: number; gameId: number }) {
+  try {
+    const userScore = await prisma.score.findFirst({
+      where: {
+        userId: userId,
+        gameId: gameId
+      },
+      select: {
+        score: true
+      }
+    });
+
+    return { 
+      success: true, 
+      score: userScore?.score || 0 
+    };
+  } catch (error) {
+    console.error('Error fetching user score:', error);
+    return { 
+      success: false, 
+      score: 0,
+      error: 'Failed to fetch user score' 
+    };
+  }
 }

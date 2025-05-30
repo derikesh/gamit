@@ -28,6 +28,8 @@ export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
     }
   };
 
+  console.log('test log ',leaderBoard);
+
 
   return (
     <div className="bg-[#1e293b]/50 rounded-lg p-4 border border-purple-500/20">

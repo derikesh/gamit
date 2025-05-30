@@ -5,6 +5,7 @@ export interface USERDATA_INTERFACE {
     username: string;
     email?: string | null;
     avatar: number;
+    score?:any
 }
 
 interface USER_STORE_INTERFACE {
