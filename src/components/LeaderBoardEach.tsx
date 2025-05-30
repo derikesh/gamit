@@ -3,94 +3,52 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { gameIdScore } from "@/app/lib/prisma/actions/scores";
+import { gameitStore } from "../store/store";
 
-interface LeaderboardUser {
-  id: number;
-  username: string;
+interface UserInterface {
   avatar: number;
-  totalScore: number;
-  rank: number;
+  username: string;
+  score: number;
 }
 
-const avatars = [
-  "https://picsum.photos/seed/player1/200",
-  "https://picsum.photos/seed/player2/200",
-  "https://picsum.photos/seed/player3/200",
-  "https://picsum.photos/seed/player4/200",
-  "https://picsum.photos/seed/player5/200",
-];
+interface LeaderboardUser {
+  createdAt: any;
+  id: number;
+  score: number;
+  gameId: number;
+  userId: number;
+  user: UserInterface;
+}
 
-// Demo data
-const demoLeaderboard: LeaderboardUser[] = [
-  { id: 1, username: "ProGamer123", avatar: 1, totalScore: 9850, rank: 1 },
-  { id: 2, username: "NinjaWarrior", avatar: 2, totalScore: 8720, rank: 2 },
-  { id: 3, username: "PixelMaster", avatar: 3, totalScore: 7650, rank: 3 },
-  { id: 4, username: "GameWizard", avatar: 4, totalScore: 6540, rank: 4 },
-  { id: 5, username: "SpeedRunner", avatar: 5, totalScore: 5430, rank: 5 },
-  { id: 6, username: "EpicPlayer", avatar: 1, totalScore: 4320, rank: 6 },
-  { id: 7, username: "GameChampion", avatar: 2, totalScore: 3210, rank: 7 },
-  { id: 8, username: "LevelMaster", avatar: 3, totalScore: 2980, rank: 8 },
-  { id: 9, username: "ScoreHunter", avatar: 4, totalScore: 2870, rank: 9 },
-  { id: 10, username: "GamePro", avatar: 5, totalScore: 2760, rank: 10 },
-  { id: 11, username: "QuickPlayer", avatar: 1, totalScore: 2650, rank: 11 },
-  { id: 12, username: "GameMaster", avatar: 2, totalScore: 2540, rank: 12 },
-  { id: 13, username: "ScoreKing", avatar: 3, totalScore: 2430, rank: 13 },
-];
-
-const getMedalEmoji = (rank: number) => {
-  switch (rank) {
-    case 1:
-      return "🥇";
-    case 2:
-      return "🥈";
-    case 3:
-      return "🥉";
-    default:
-      return "";
-  }
-};
-
-const getTopThreeStyle = (rank: number) => {
-  switch (rank) {
-    case 1:
-      return "bg-gradient-to-br from-yellow-400 to-yellow-600  z-30";
-    case 2:
-      return "bg-gradient-to-br from-gray-300 to-gray-400  z-20";
-    case 3:
-      return "bg-gradient-to-br from-amber-600 to-amber-800  z-10";
-    default:
-      return "bg-gradient-to-br from-purple-500 to-pink-500";
-  }
-};
-
-export default  function LeaderboardPage({
+export default function LeaderboardPage({
   isGameStarted,
   finishGame,
   gameId
 }: {
   isGameStarted: any;
   finishGame: any;
-  gameId:string | null
+  gameId: number;
 }) {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [table, setTable] = useState<LeaderboardUser[]>([]);
+
+  const { activeUser } = gameitStore();
+
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
+    async function getData() {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setLeaderboard(demoLeaderboard);
-      } catch (error) {
-        console.error("Error loading leaderboard:", error);
+        const id = await gameIdScore({ gameId });
+        setTable(id?.data?.leaderBoard);
+      } catch (err) {
+        console.error('Error loading leaderboard', err);
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
-    fetchLeaderboard();
-  }, []);
-
-
+    getData();
+  }, [gameId]);
 
   if (isLoading) {
     return (
@@ -100,17 +58,32 @@ export default  function LeaderboardPage({
     );
   }
 
-  const topThree = leaderboard.slice(0, 3);
-  const remainingPlayers = leaderboard.slice(3, 13);
+  const topThree = table.slice(0, 3);
+  const remainingPlayers = table.slice(3);
+
+  function getColor(id: number) {
+    switch (id) {
+      case 1:
+        return 'bg-yellow-600';
+      case 2:
+        return 'bg-slate-400';
+      case 3:
+        return 'bg-amber-900';
+      default:
+        return '';
+    }
+  }
+
+  function getCurrentUserRank( {id}:{id:number} ){
+
+      return id === activeUser?.id
+
+  }
 
   return (
     <AnimatePresence>
       {!isGameStarted && finishGame && (
-        <div
-          className={`min-h-screen bg-gray-900 py-8 ${
-            !isGameStarted && finishGame ? "block" : "hidden"
-          }`}
-        >
+        <div className={`min-h-screen bg-gray-900 py-8 ${!isGameStarted && finishGame ? "block" : "hidden"}`}>
           <div className="max-w-5xl mx-auto px-4">
             <h1 className="text-3xl font-bold text-white text-center mb-8 font-geist-mono">
               Leaderboard
@@ -124,61 +97,78 @@ export default  function LeaderboardPage({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.2 }}
-                  className={`relative ${getTopThreeStyle(
-                    player.rank
-                  )} p-4 rounded-xl shadow-lg`}
+                  className={`relative bg-[#1e293b]/50 backdrop-blur-sm p-4 rounded-xl border ${
+                    getCurrentUserRank({ id: player.userId })
+                      ? 'border-cyan-600 border-3'
+                      : index === 0
+                      ? 'border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.2)]'
+                      : index === 1
+                      ? 'border-purple-400/30 shadow-[0_0_20px_rgba(192,132,252,0.2)]'
+                      : 'border-pink-400/30 shadow-[0_0_20px_rgba(236,72,153,0.2)]'
+                  }`}
                 >
-                  <div className="absolute -top-3 -right-3 text-3xl">
-                    {getMedalEmoji(player.rank)}
+                  <div className={`absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center ${getColor(index + 1)} justify-center border border-white/10`}>
+                    <span className="text-white font-bold text-sm">#{index + 1}</span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-full overflow-hidden mb-2 border-2 border-white/20">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-white/90 mb-3 border-2 border-white/10">
                       <img
-                        src={avatars[player.avatar - 1]}
-                        alt={player.username}
-                        className="w-full h-full object-cover"
+                        src={`/images/avatars/${player.user.avatar}.png`}
+                        alt={player.user.username}
+                        className="w-full h-full object-cover mt-[6px] scale-[1.1]"
                       />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">
-                      {player.username}
+                    <h3 className={`font-geist-mono font-medium mb-1 ${
+                      getCurrentUserRank({ id: player.userId }) ? 'text-cyan-400' : 'text-white'
+                    }`}>
+                      {player.user.username}
                     </h3>
-                    <p className="text-white/80 text-sm">{player.totalScore}</p>
+                    <p className="text-cyan-400 font-geist-mono text-sm">{player.score}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
 
             {/* Remaining Players */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4">
-              <h2 className="text-xl font-bold text-white mb-4 font-geist-mono">
+            <div className="bg-[#1e293b]/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/10">
+              <h2 className="text-xl font-bold text-white mb-6 font-geist-mono">
                 Top Players
               </h2>
-              <div className="space-y-2">
-                {remainingPlayers.map((player) => (
+              <div className="space-y-3">
+                {remainingPlayers.map((player, index) => (
                   <motion.div
                     key={player.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                    className={`group flex items-center justify-between p-4 bg-white/5 rounded-lg border ${
+                      getCurrentUserRank({ id: player.userId }) ? 'border-cyan-600 border-3' : 'border-white/5'
+                    } hover:bg-white/10 transition-all duration-300`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-white/60 font-geist-mono w-6 text-sm">
-                        #{player.rank}
-                      </span>
-                      <div className="w-8 h-8 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <span className="text-gray-400 font-geist-mono text-sm w-8">
+                          #{index + 4}
+                        </span>
+                      </div>
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10">
                         <img
-                          src={avatars[player.avatar - 1]}
-                          alt={player.username}
+                          src={`/images/avatars/${player.user.avatar}.png`}
+                          alt={player.user.username}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <span className="text-white font-geist-mono text-sm">
-                        {player.username}
+                      <span className={`font-geist-mono text-sm ${
+                        getCurrentUserRank({ id: player.userId }) ? 'text-cyan-400' : 'text-white'
+                      }`}>
+                        {player.user.username}
                       </span>
                     </div>
-                    <span className="text-white/80 font-geist-mono text-sm">
-                      {player.totalScore} pts
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-cyan-400 font-geist-mono text-sm">
+                        {player.score}
+                      </span>
+                      <span className="text-gray-500 text-xs">pts</span>
+                    </div>
                   </motion.div>
                 ))}
               </div>

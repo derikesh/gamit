@@ -233,7 +233,7 @@ export default function page() {
 
         </div>
       </div>
-         <LeaderboardPage gameId={param.get('gameId')} isGameStarted={isGameStarted} finishGame={finishGame} />
+         <LeaderboardPage gameId={Number(param.get('gameId'))} isGameStarted={isGameStarted} finishGame={finishGame} />
     </main>
   );
 }

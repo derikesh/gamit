@@ -40,7 +40,6 @@ export default function NavHeader() {
         }
     }
 
-    console.log('what is active',activeUser);
 
   return (
     <div className="flex justify-between items-center mb-12">

@@ -46,7 +46,6 @@ export default async function Dashboard() {
 
 const allGames = await getGameData();  // Sample players data with avatars
 
-  console.log(allGames);
 
   return (
     <main className="min-h-screen p-8">

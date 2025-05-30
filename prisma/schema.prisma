@@ -28,7 +28,7 @@ model User {
 model Game {
   id Int @id @default(autoincrement())
   title String 
-  description String
+  description String @default("No description")
   leaderBoard Score[]
 }
 

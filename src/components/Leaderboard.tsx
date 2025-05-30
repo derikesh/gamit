@@ -13,12 +13,7 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
-  // Sample players data with avatars
-  const players = [
-    { id: 1, name: "WordMaster", score: 120, avatar: "https://picsum.photos/seed/player1/200" },
-    { id: 2, name: "LexiconKing", score: 95, avatar: "https://picsum.photos/seed/player2/200" },
-    { id: 3, name: "VocabVoyager", score: 85, avatar: "https://picsum.photos/seed/player3/200" },
-  ];
+
 
   const getRankEmoji = (index: number) => {
     switch (index) {
@@ -33,13 +28,12 @@ export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
     }
   };
 
-  console.log('string from insdiesd',leaderBoard);
 
   return (
     <div className="bg-[#1e293b]/50 rounded-lg p-4 border border-purple-500/20">
       <h3 className="text-sm text-gray-400 font-geist-mono mb-4">Top Players</h3>
       <div className="space-y-3">
-        {leaderBoard && leaderBoard.map((player, index) => (
+        {leaderBoard && leaderBoard.slice(0,3).map((player, index) => (
           <div 
             key={player.id}
             className="flex items-center gap-3 p-2 bg-[#1e293b]/30 rounded-lg border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 transform hover:scale-[1.02]"
@@ -48,7 +42,7 @@ export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
               <img
                 src={`/images/avatars/${player.user.avatar}.png`}
                 alt={player.user.username}
-                className="scale-[1.2] h-full w-full mt-[4px] bg-white/60"
+                className="scale-[1.2] h-full w-full mt-[4px] bg-white/90"
               />
             </div>
             <div className="flex-1">

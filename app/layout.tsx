@@ -41,7 +41,6 @@ export default async function RootLayout({
     }
   }
 
-  console.log('this is testing',user);
 
   return (
     <html lang="en">

@@ -73,11 +73,29 @@ export const gameIdScore = async ( {gameId}:{gameId:number} )=>{
 
         const gameFound = await prisma.game.findFirst({
             where:{
-                id:gameId,
+                id:Number(gameId),
             },
-            select:{
-                leaderBoard:true
-            }
+            include:{
+                leaderBoard:{
+                    orderBy:{
+                        score:'desc'
+                    },
+                    include:{
+                        user:{
+                            select:{
+                                avatar:true,
+                                username:true,
+                                score:true
+                            }
+                        }
+                    }
+                },
+
+            }           
+            // select:{
+            //     leaderBoard:true
+            // },
+            
         })
 
         return { message:'Data found' , data :gameFound }
