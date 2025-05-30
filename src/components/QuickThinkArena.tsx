@@ -52,7 +52,7 @@ export default async function QuickThinkArena({ gameData }: PROP_INTEFACE) {
         </div>
 
         {/* Play Button */}
-        <Link href='/games/quickThinkArena' className='w-fit' >
+        <Link href={{ pathname: '/games/quickThinkArena', query: { gameId: 1 } }} className='w-fit' >
           <button className="group relative px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300  hover:cursor-pointer hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative text-white font-geist-mono text-sm flex items-center justify-center gap-2">

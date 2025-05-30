@@ -62,3 +62,28 @@ export const calculateScores = async ({gameId,userId,score}:SCORE_INTERFACE)=>{
            }
 
 }
+
+
+
+// fetching game score out of id 
+
+export const gameIdScore = async ( {gameId}:{gameId:number} )=>{
+
+    try{
+
+        const gameFound = await prisma.game.findFirst({
+            where:{
+                id:gameId,
+            },
+            select:{
+                leaderBoard:true
+            }
+        })
+
+        return { message:'Data found' , data :gameFound }
+
+    }catch(err){
+        console.log('Game score Fetch Error',err);
+    }
+
+}

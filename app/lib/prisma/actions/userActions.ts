@@ -76,14 +76,14 @@ export const loginUser = async ({username, password}:LoginInterface) => {
     const token = jwt.sign(
       { userId: user.id },
       tokenSignature,
-      { expiresIn: '30s' }
+      { expiresIn: '14d' }
     );
 
 
     (await cookies()).set( 'gameit_token' , token , {
       httpOnly:true,
       secure:process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24  * 4,
+      maxAge: 60 * 60 * 24  * 14 ,
       path:'/',
       sameSite:'lax'
     } )

@@ -4,16 +4,14 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 
 import allword from "./filtered_valid_words.json";
-import Leaderboard from "@/src/components/Leaderboard";
-
 import LeaderboardPage from "@/src/components/LeaderBoardEach";
+import { useSearchParams } from "next/navigation";
 
 export default function page() {
   const sets = new Set(allword);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
 
   const [keyword, setKeyword] = useState("");
   // const [sets, setsets] = useState<any>();
@@ -25,6 +23,8 @@ export default function page() {
   const [error, setError] = useState<string>("");
 
   const validLetters = ["A","S","R","H","J","K","B","D"];
+
+  const param = useSearchParams();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +78,7 @@ export default function page() {
       };
       
   }, [isGameStarted]);
+
 
 
    return (
@@ -232,7 +233,7 @@ export default function page() {
 
         </div>
       </div>
-         <LeaderboardPage isGameStarted={isGameStarted} finishGame={finishGame} />
+         <LeaderboardPage gameId={param.get('gameId')} isGameStarted={isGameStarted} finishGame={finishGame} />
     </main>
   );
 }

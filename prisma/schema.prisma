@@ -21,12 +21,14 @@ model User {
   email String?
   avatar Int @default(1)
   password String
+  champ Boolean @default(false)
   score Score[]
 }
 
 model Game {
   id Int @id @default(autoincrement())
   title String 
+  description String
   leaderBoard Score[]
 }
 

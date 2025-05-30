@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { gameIdScore } from "@/app/lib/prisma/actions/scores";
 
 interface LeaderboardUser {
   id: number;
@@ -62,12 +63,14 @@ const getTopThreeStyle = (rank: number) => {
   }
 };
 
-export default function LeaderboardPage({
+export default  function LeaderboardPage({
   isGameStarted,
   finishGame,
+  gameId
 }: {
   isGameStarted: any;
   finishGame: any;
+  gameId:string | null
 }) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,6 +89,8 @@ export default function LeaderboardPage({
 
     fetchLeaderboard();
   }, []);
+
+
 
   if (isLoading) {
     return (

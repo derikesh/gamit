@@ -20,7 +20,7 @@ interface SignupModalProps {
   editProfile:USERDATA_INTERFACE | null
 }
 
-const avatars = [1,2,3,4,5,6,7,8];
+const avatars = [1,2,3,4,5,6,7,8,9];
 
 const MAX_USERNAME_LENGTH = 15;
 const MIN_USERNAME_LENGTH = 3;
