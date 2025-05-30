@@ -12,43 +12,53 @@ interface UserInterface {
 }
 
 interface LeaderboardUser {
-  createdAt: any;
+  user: {
+    username: string;
+    avatar: number;
+    score: {
+      gameId: number;
+      id: number;
+      score: number;
+      userId: number;
+      createdAt: Date;
+    }[];
+  };
+  gameId: number;
   id: number;
   score: number;
-  gameId: number;
   userId: number;
-  user: UserInterface;
+  createdAt: Date;
 }
 
-export default function LeaderboardPage({
-  isGameStarted,
-  finishGame,
-  gameId
-}: {
-  isGameStarted: any;
-  finishGame: any;
+interface PROP_INTEFACE {
   gameId: number;
-}) {
+  isGameStarted: boolean;
+  finishGame: boolean;
+  newHighScore: number;
+}
+
+export default function LeaderboardPage({ gameId, isGameStarted, finishGame, newHighScore }: PROP_INTEFACE) {
   const [isLoading, setIsLoading] = useState(true);
   const [table, setTable] = useState<LeaderboardUser[]>([]);
 
   const { activeUser } = gameitStore();
 
-
   useEffect(() => {
-    async function getData() {
+    async function fetchLeaderboard() {
       try {
-        const id = await gameIdScore({ gameId });
-        setTable(id?.data?.leaderBoard);
-      } catch (err) {
-        console.error('Error loading leaderboard', err);
+        const scoreGame = await gameIdScore({ gameId });
+        if (scoreGame?.data?.leaderBoard) {
+          setTable(scoreGame.data.leaderBoard);
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
       } finally {
         setIsLoading(false);
       }
     }
 
-    getData();
-  }, [gameId]);
+    fetchLeaderboard();
+  }, [gameId, newHighScore]);
 
   if (isLoading) {
     return (

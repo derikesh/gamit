@@ -168,3 +168,44 @@ export async function getUserScore({ userId, gameId }: { userId: number; gameId:
     };
   }
 }
+
+export async function updateUserHighScore({ userId, gameId, newScore }: { userId: number; gameId: number; newScore: number }) {
+  try {
+    // First check if a score record exists
+    const existingScore = await prisma.score.findFirst({
+      where: {
+        userId: userId,
+        gameId: gameId
+      }
+    });
+
+    if (existingScore) {
+      // Update existing score if new score is higher
+      if (newScore > existingScore.score) {
+        const updatedScore = await prisma.score.update({
+          where: {
+            id: existingScore.id
+          },
+          data: {
+            score: newScore
+          }
+        });
+        return { success: true, score: updatedScore.score };
+      }
+      return { success: true, score: existingScore.score };
+    } else {
+      // Create new score record
+      const newScoreRecord = await prisma.score.create({
+        data: {
+          userId: userId,
+          gameId: gameId,
+          score: newScore
+        }
+      });
+      return { success: true, score: newScoreRecord.score };
+    }
+  } catch (error) {
+    console.error('Error updating high score:', error);
+    return { success: false, error: 'Failed to update high score' };
+  }
+}

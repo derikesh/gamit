@@ -2,10 +2,14 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 
 import allword from "./filtered_valid_words.json";
 import LeaderboardPage from "@/src/components/LeaderBoardEach";
 import { useSearchParams } from "next/navigation";
+
+import { getUserScore, updateUserHighScore } from "@/app/lib/prisma/actions/scores";
+import { gameitStore } from "@/src/store/store";
 
 export default function page() {
   const sets = new Set(allword);
@@ -14,21 +18,38 @@ export default function page() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [keyword, setKeyword] = useState("");
-  // const [sets, setsets] = useState<any>();
   const [arr, setArr] = useState<string[]>([]);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [index, setIndex] = useState<number>(0);
   const [timer, setTime] = useState<number>(60);
   const [ finishGame , setFinishGame ] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [ score , setScore ] = useState(0);
+  const [ userHigheScore , setUserHighScore ] = useState<number>(0);
+
+  const { activeUser } = gameitStore();
+
 
   const validLetters = ["A","S","R","H","J","K","B","D"];
 
   const param = useSearchParams();
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-   
+    let mark = 0;
+
+    if(!keyword) return;
+
+    let keyLeng = keyword.length;
+    
+    if(keyLeng >= 10){
+      mark = 3
+    }else if(keyLeng >= 6){
+      mark = 2
+    }else{
+      mark =1
+    }
     if (keyword[0].toUpperCase() !== validLetters[index]) {
       setError(`Word must start with '${validLetters[index]}'!`);
       return;
@@ -37,18 +58,24 @@ export default function page() {
       setError("Not a valid word!");
       return;
     }
-    if( arr.includes(keyword) ){
-      setError("Word already entered");
-      return;
-    }
+    // if( arr.includes(keyword) ){
+    //   setError("Word already entered");
+    //   return;
+    // }
+
+    setScore( 
+     (prev) => prev + mark
+    )
     setArr((prev) => [...prev, keyword]);
     setKeyword("");
     setError("");
   };
 
+let gameID = Number(param.get('gameId'));
+
   const handleStartGame = () => {
     setIsGameStarted(true);
-    setTime(3);
+    setTime(8);
     const timerID = setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
@@ -79,6 +106,68 @@ export default function page() {
       
   }, [isGameStarted]);
 
+// check the score
+useEffect( ()=>{
+
+  async function getScore(){
+
+      if(!activeUser?.id){
+        return null;
+      }
+
+      try {
+
+        const scoreValue = await getUserScore({userId:activeUser?.id,gameId:gameID});
+        if(scoreValue){
+          setUserHighScore(scoreValue.score);
+        }
+
+      } catch(err){
+        console.log('Error in fetching score',err);
+        throw err;
+      } 
+  }
+
+  getScore();
+
+} ,[activeUser?.id]);
+
+
+useEffect(() => {
+  async function handleHighScore() {
+    if (finishGame && activeUser?.id && score > userHigheScore) {
+      try {
+        const result = await updateUserHighScore({
+          userId: activeUser.id,
+          gameId: gameID,
+          newScore: score
+        });
+        
+        router.refresh();
+        if (result.success && typeof result.score === 'number') {
+          setUserHighScore(result.score);
+          // Show success message
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 ease-in-out';
+          toast.textContent = '🎉 New High Score!';
+          document.body.appendChild(toast);
+          
+          setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+              document.body.removeChild(toast);
+              // Refresh the page after toast is removed
+            }, 500);
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Error updating high score:', error);
+      }
+    }
+  }
+
+  handleHighScore();
+}, [finishGame, score, userHigheScore, activeUser?.id, gameID]);
 
 
    return (
@@ -111,9 +200,28 @@ export default function page() {
               Think fast. Type faster. Only real words starting with
               <span className="font-bold text-4xl animate-bounce bg-gradient-to-r from-cyan-400 to-red-600 bg-clip-text text-transparent px-2">{validLetters[index]}</span>count
             </p>
-            <p className="text-gray-400 font-geist-mono text-sm">
-              You've got 60 seconds. Speed and vocabulary are your weapons.
-            </p>
+            
+            {/* Scoring Rules */}
+            <div className="relative bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 max-w-md mx-auto transform transition-all duration-300 hover:border-purple-500/40 hover:shadow-[0_0_30px_rgba(147,51,234,0.1)]">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative">
+                <h3 className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 font-press text-xl mb-4">Scoring Rules</h3>
+                <ul className="text-gray-300 font-geist-mono text-sm space-y-3">
+                  <li className="flex items-center gap-3 p-2 rounded-lg bg-[#1e293b]/30 hover:bg-[#1e293b]/50 transition-colors duration-200">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 font-bold">1</span>
+                    <span>Words with 10+ letters: <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400 font-bold">3 points</span></span>
+                  </li>
+                  <li className="flex items-center gap-3 p-2 rounded-lg bg-[#1e293b]/30 hover:bg-[#1e293b]/50 transition-colors duration-200">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 font-bold">2</span>
+                    <span>Words with 6-9 letters: <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400 font-bold">2 points</span></span>
+                  </li>
+                  <li className="flex items-center gap-3 p-2 rounded-lg bg-[#1e293b]/30 hover:bg-[#1e293b]/50 transition-colors duration-200">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 font-bold">3</span>
+                    <span>Words with 1-5 letters: <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400 font-bold">1 point</span></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -148,7 +256,7 @@ export default function page() {
                   Game Over!
                 </h2>
                 <p className="text-gray-300 font-geist-mono text-lg">
-                  Your Score: <span className="text-cyan-300 font-bold text-2xl">{arr.length}</span>
+                  Your Score: <span className="text-cyan-300 font-bold text-2xl">{score}</span>
                 </p>
               </div>
               
@@ -233,7 +341,12 @@ export default function page() {
 
         </div>
       </div>
-         <LeaderboardPage gameId={Number(param.get('gameId'))} isGameStarted={isGameStarted} finishGame={finishGame} />
+         <LeaderboardPage 
+           gameId={gameID} 
+           isGameStarted={isGameStarted} 
+           finishGame={finishGame}
+           newHighScore={userHigheScore} 
+         />
     </main>
   );
 }

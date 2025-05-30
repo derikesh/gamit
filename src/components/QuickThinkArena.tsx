@@ -38,43 +38,43 @@ export default function QuickThinkArena({ gameData }: PROP_INTEFACE) {
   }, [activeUser?.id, gameData.id]);
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-0">
       {/* Game Content */}
       <div className="flex-1 flex flex-col gap-6">
         {/* Game Info */}
         <div className="flex items-start gap-4">
           <div className="relative">
-            <span className="text-4xl animate-pulse">🧠</span>
+            <span className="text-3xl lg:text-4xl animate-pulse">🧠</span>
             <div className="absolute -inset-2 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
           </div>
           <div>
-            <h2 className="font-press text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">
+            <h2 className="font-press text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">
               {gameData.title}
             </h2>
-            <p className="text-cyan-300/90 font-geist-mono text-sm leading-relaxed">
+            <p className="text-cyan-300/90 font-geist-mono text-xs lg:text-sm leading-relaxed">
               {gameData?.description}
             </p>
           </div>
         </div>
 
         {/* Game Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-lg p-4 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-lg p-3 lg:p-4 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <p className="text-xs text-gray-400 font-geist-mono mb-1">Time Limit</p>
-            <p className="text-lg font-press text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">60s</p>
+            <p className="text-base lg:text-lg font-press text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">60s</p>
           </div>
-          <div className="bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-lg p-4 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group">
+          <div className="bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-lg p-3 lg:p-4 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <p className="text-xs text-gray-400 font-geist-mono mb-1">Highest Score</p>
-            <p className="text-lg font-press text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">
+            <p className="text-base lg:text-lg font-press text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">
               {gameData.leaderBoard[0]?.score || 0}
             </p>
           </div>
-          <div className="bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-lg p-4 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group">
+          <div className="bg-gradient-to-br from-[#1e293b]/40 to-[#1e293b]/60 backdrop-blur-sm rounded-lg p-3 lg:p-4 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <p className="text-xs text-gray-400 font-geist-mono mb-1">Your Score</p>
-            <p className="text-lg font-press text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">
+            <p className="text-base lg:text-lg font-press text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400">
               {userScore}
             </p>
           </div>
@@ -82,20 +82,20 @@ export default function QuickThinkArena({ gameData }: PROP_INTEFACE) {
 
         {/* Play Button */}
         <Link href={{ pathname: '/games/quickThinkArena', query: { gameId: gameData.id } }} className='w-fit'>
-          <button className="group relative px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300 hover:cursor-pointer hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]">
+          <button className="group relative px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden transition-all duration-300 hover:cursor-pointer hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative text-white font-geist-mono text-sm flex items-center justify-center gap-2">
+            <span className="relative text-white font-geist-mono text-xs lg:text-sm flex items-center justify-center gap-2">
               <span>Quick Play</span>
-              <span className="text-lg">⚡</span>
+              <span className="text-base lg:text-lg">⚡</span>
             </span>
           </button>
         </Link>
       </div>
 
       {/* Leaderboard */}
-      <div className="w-[300px]">
+      <div className="w-full lg:w-[300px] mt-6 lg:mt-0">
         <Leaderboard leaderBoard={gameData.leaderBoard} />
       </div>
     </div>
   );
-} 
+}
