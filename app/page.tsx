@@ -1,27 +1,8 @@
 import NavHeader from "@/src/components/NavHeader";
 import QuickThinkArena from "@/src/components/QuickThinkArena";
-
-import { prisma } from "./lib/prisma/prisma";
 import { getGameData } from "./lib/prisma/actions/scores";
 
 export default async function Dashboard() {
-
-  const games = [
-    {
-      id: 1,
-      title: 'Quick Think Arena',
-      description: 'How many valid words can you think of?',
-      path: '/games/quickThinkArena',
-      emoji: '🧠'
-    },
-    {
-      id: 2,
-      title: 'Demo Game',
-      description: 'Test your skills in this interactive demo',
-      path: '/games/demo',
-      emoji: '🎮'
-    }
-  ];
 
   const upcomingGames = [
     {
@@ -43,9 +24,7 @@ export default async function Dashboard() {
       emoji: '🏎️'
     }
   ];
-
-const allGames = await getGameData();  // Sample players data with avatars
-
+  const allGames = await getGameData();
 
   return (
     <main className="min-h-screen p-8">

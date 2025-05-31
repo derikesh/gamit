@@ -58,10 +58,10 @@ export default function page() {
       setError("Not a valid word!");
       return;
     }
-    // if( arr.includes(keyword) ){
-    //   setError("Word already entered");
-    //   return;
-    // }
+    if( arr.includes(keyword) ){
+      setError("Word already entered");
+      return;
+    }
 
     setScore( 
      (prev) => prev + mark
@@ -71,11 +71,16 @@ export default function page() {
     setError("");
   };
 
-let gameID = Number(param.get('gameId'));
+  let gameID = Number(param.get('gameId') ?? 0);
 
   const handleStartGame = () => {
+
+    if(timerRef.current){
+      clearInterval(timerRef.current);
+    }
+
     setIsGameStarted(true);
-    setTime(8);
+    setTime(60);
     const timerID = setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
@@ -133,6 +138,8 @@ useEffect( ()=>{
 } ,[activeUser?.id]);
 
 
+
+// update the high score if achived
 useEffect(() => {
   async function handleHighScore() {
     if (finishGame && activeUser?.id && score > userHigheScore) {
@@ -302,6 +309,7 @@ useEffect(() => {
                       setKeyword(e.target.value.toLowerCase());
                       setError(""); // Clear error when user types
                     }}
+                    onPaste={ (e) => e.preventDefault() }
                     placeholder="Type a word starting with 'R'..."
                     className="w-full px-6 py-4 bg-[#1e293b]/50 border border-purple-500/20 rounded-lg text-white font-geist-mono placeholder-gray-500 focus:outline-none focus:border-purple-500/50 transition-all duration-300 focus:shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                   />
@@ -324,7 +332,7 @@ useEffect(() => {
           {/* Word List */}
           <div className={`${isGameStarted ? 'block' : 'hidden'} bg-[#1e293b]/50 rounded-lg p-6 border border-purple-500/20 transform transition-all duration-500 ease-in-out hover:shadow-[0_0_20px_rgba(147,51,234,0.2)]`}>
             <h3 className="text-sm text-gray-400 font-geist-mono mb-4">
-              Your Words: <span className="font-bold font-2xl animate-bounce bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent px-2">{arr.length}</span>
+              Live Score: <span className="font-bold font-2xl animate-bounce bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent px-2">{score}</span>
             </h3>
             <div className="flex flex-wrap gap-2">
               {arr.map((word, index) => (
@@ -340,6 +348,8 @@ useEffect(() => {
 
 
         </div>
+
+
       </div>
          <LeaderboardPage 
            gameId={gameID} 
