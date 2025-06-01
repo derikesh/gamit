@@ -26,6 +26,7 @@ const MAX_USERNAME_LENGTH = 15;
 const MIN_USERNAME_LENGTH = 3;
 
 export default function SignupModal({ isOpen, onClose, logOpen , editProfile=null }: SignupModalProps) {
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -168,13 +169,24 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
   };
 
   const handleAvatarClick = (avatar: number) => {
-    if (avatar >= 6) {
-      setToast({
-        isVisible: true,
-        message: 'Achieve #1 rank in any game to unlock this premium avatar!',
-        type: 'info'
-      });
-      return;
+    if (avatar >= 6 && avatar <= 8) {
+      if (!activeUser?.champ) {
+        setToast({
+          isVisible: true,
+          message: 'Get into top 3 in any game to unlock!',
+          type: 'info'
+        });
+        return;
+      }
+    } else if (avatar >= 9) {
+      if (!activeUser?.champ2) {
+        setToast({
+          isVisible: true,
+          message: 'Get #1 rank in any game to unlock!',
+          type: 'info'
+        });
+        return;
+      }
     }
     setFormData({ ...formData, avatar });
   };
@@ -184,6 +196,8 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
     setFormData(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
+
+  console.log('this is confusing ig',activeUser?.champ)
 
   return (
     <AnimatePresence>
@@ -236,7 +250,8 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
                         formData.avatar === avatar
                           ? 'border-cyan-400 ring-4 ring-cyan-400/20'
                           : 'border-transparent'
-                      } ${avatar >= 6 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      }
+                      ${( avatar >= 6 && avatar <= 8 && !activeUser?.champ ) || (avatar >=9 && !activeUser?.champ2) ? 'opacity-50 cursor-not-allowed' : ''}`}
                       // disabled={avatar >= 6}
                     >
                       <div className="relative">
@@ -245,11 +260,11 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
                           alt={`Avatar ${index + 1}`}
                           className="w-full h-full object-cover mt-1 scale-[1.2]"
                         />
-                        {avatar >= 6 && (
+                        {(avatar >= 6 && avatar <= 8 && !activeUser?.champ) || (avatar >= 9 && !activeUser?.champ2) ? (
                           <div className="absolute inset-0 flex items-center justify-center rounded-full">
                             <span className="text-white text-xl">🔒</span>
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </button>
                   ))}

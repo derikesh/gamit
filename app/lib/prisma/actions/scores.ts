@@ -27,7 +27,9 @@ export const getGameData = async ()=>{
                                     username:true,
                                     avatar:true,
                                     score:true,
-                                    id:true
+                                    id:true,
+                                    champ:true,
+                                    champ2:true
                                 }
                             }
                         }
@@ -209,3 +211,5 @@ export async function updateUserHighScore({ userId, gameId, newScore }: { userId
     return { success: false, error: 'Failed to update high score' };
   }
 }
+
+

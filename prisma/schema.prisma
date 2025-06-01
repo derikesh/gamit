@@ -22,6 +22,7 @@ model User {
   avatar Int @default(1)
   password String
   champ Boolean @default(false)
+  champ2 Boolean @default(false)
   score Score[]
 }
 

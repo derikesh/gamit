@@ -24,7 +24,7 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
     password: ''
   });
 
-  const { setUser } = gameitStore();
+  const {activeUser ,  setUser } = gameitStore();
   const { tempCredentials, setTempCredentials } = gameitStore();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +56,7 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
       });
 
       if (result) {
+        console.log('stright from server', result.user);
         setUser(result.user);
         // Clear temp credentials after successful login
         setTempCredentials(null);
@@ -88,6 +89,8 @@ export default function LoginModal({ isOpen, onClose, signUp }: LoginModalProps)
     setFormData(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
+
+  console.log('this is real user ,', activeUser);
 
   return (
     <AnimatePresence>

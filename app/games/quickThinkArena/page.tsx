@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
+import ReactConfetti from 'react-confetti';
 
 import allword from "./filtered_valid_words.json";
 import LeaderboardPage from "@/src/components/LeaderBoardEach";
@@ -10,6 +10,9 @@ import { useSearchParams } from "next/navigation";
 
 import { getUserScore, updateUserHighScore } from "@/app/lib/prisma/actions/scores";
 import { gameitStore } from "@/src/store/store";
+import CustomToast from "@/src/components/CustomToast";
+
+import { checkTop3 } from "@/app/lib/prisma/actions/userActions";
 
 export default function page() {
   const sets = new Set(allword);
@@ -26,14 +29,23 @@ export default function page() {
   const [error, setError] = useState<string>("");
   const [ score , setScore ] = useState(0);
   const [ userHigheScore , setUserHighScore ] = useState<number>(0);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success' as 'success' | 'error' | 'info'
+  });
 
   const { activeUser } = gameitStore();
 
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0
+  });
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const validLetters = ["A","S","R","H","J","K","B","D"];
 
   const param = useSearchParams();
-  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,7 +149,17 @@ useEffect( ()=>{
 
 } ,[activeUser?.id]);
 
+useEffect(() => {
+  const handleResize = () => {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+  };
 
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
 // update the high score if achived
 useEffect(() => {
@@ -149,26 +171,49 @@ useEffect(() => {
           gameId: gameID,
           newScore: score
         });
-        
-        router.refresh();
-        if (result.success && typeof result.score === 'number') {
-          setUserHighScore(result.score);
-          // Show success message
-          const toast = document.createElement('div');
-          toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 ease-in-out';
-          toast.textContent = '🎉 New High Score!';
-          document.body.appendChild(toast);
-          
-          setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => {
-              document.body.removeChild(toast);
-              // Refresh the page after toast is removed
-            }, 500);
-          }, 2000);
+
+        if (result.success) {
+          setUserHighScore(Number(result.score));
+          setToast({
+            isVisible: true,
+            message: 'New High Score!',
+            type: 'success'
+          });
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 5000);
+
+          // Check if user is top 3 or top 1 and update champ flags
+          if( !activeUser.champ || !activeUser.champ2 ){
+             try {
+              const champStatus = await checkTop3({
+                userId: activeUser.id,
+                gameId: gameID
+              });
+
+              console.log('champ states',champStatus);
+  
+              if( champStatus.user.champ2 || champStatus.user.champ){
+                  setToast({
+                    type:'info',
+                    message:'New Avatar Unlocked',
+                    isVisible:true
+                  })            
+              }
+  
+            } catch (err) {
+              console.error('Error checking top 3:', err);
+              throw err;
+            }
+          }
         }
+
       } catch (error) {
         console.error('Error updating high score:', error);
+        setToast({
+          isVisible: true,
+          message: 'Failed to update high score',
+          type: 'error'
+        });
       }
     }
   }
@@ -179,6 +224,15 @@ useEffect(() => {
 
    return (
     <main className="min-h-screen bg-[#0f172a] p-8">
+      {showConfetti && (
+        <ReactConfetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.3}
+        />
+      )}
       <div className="max-w-2xl mx-auto">
         {/* Header with Back Button */}
         <div className="flex items-center mb-8">
@@ -272,6 +326,7 @@ useEffect(() => {
                   setFinishGame(false);
                   setArr([]);
                   setIsGameStarted(false);
+                  setScore(0);
                 }}
                 className="group relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transform hover:scale-105"
               >
@@ -282,8 +337,6 @@ useEffect(() => {
                 </span>
               </button>
             </div>
-
-            {/* <Leaderboard key={1} gameId={1} /> */}
           </div>
 
           {/* time */}
@@ -356,6 +409,13 @@ useEffect(() => {
            isGameStarted={isGameStarted} 
            finishGame={finishGame}
            newHighScore={userHigheScore} 
+         />
+         <CustomToast
+           isVisible={toast.isVisible}
+           message={toast.message}
+           type={toast.type}
+           modelOPen={true}
+           onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
          />
     </main>
   );

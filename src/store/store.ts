@@ -5,7 +5,9 @@ export interface USERDATA_INTERFACE {
     username: string;
     email?: string | null;
     avatar: number;
-    score?:any
+    score?:any;
+    champ:boolean | false;
+    champ2:boolean | false;
 }
 
 interface USER_STORE_INTERFACE {

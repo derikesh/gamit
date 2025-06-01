@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect } from "react";
+import {  useEffect } from "react";
 import { gameitStore } from "../store/store";
 
 export function SessionStart( {user}:{user:any} ){
@@ -18,7 +18,7 @@ export function SessionStart( {user}:{user:any} ){
             setUser(user.user);
         }
 
-    } , [])
+    } , [  ])
     
 
     return(

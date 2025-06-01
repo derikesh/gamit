@@ -93,6 +93,8 @@ export const loginUser = async ({username, password}:LoginInterface) => {
       username: user.username,
       email: user.email,
       avatar: user.avatar,
+      champ:user.champ,
+      champ2:user.champ2
     } };
 
   } catch (error) {
@@ -126,7 +128,9 @@ export const currentUser = async () => {
         username: true,
         email: true,
         avatar: true,
-        score:true
+        score:true,
+        champ:true,
+        champ2:true
       }
     });
 
@@ -195,5 +199,43 @@ export const updateUser = async ({ id, username, email, password, avatar }:USER_
     console.error(`Error adding email ${err}`);
     throw err;
    }
+
+}
+
+
+export const checkTop3 = async ( {userId,gameId}:{ userId:number,gameId:number } )=>{
+
+      try {
+        
+        const gameCheck = await prisma.game.findFirst({
+          where:{id:gameId},
+          select:{ leaderBoard:{ orderBy:{score:'desc'} , take:3 , select:{ userId:true } }   }
+        })
+
+        if (!gameCheck) throw new Error('Game not found');
+
+        let champFirst = false;
+        let champTop3 = false;
+
+        if(gameCheck && gameCheck.leaderBoard[0].userId === userId){
+          champFirst = true;
+          champTop3 = true;
+        }else if( gameCheck?.leaderBoard.some( (item) => item.userId === userId ) ){
+          champTop3 = true
+        }
+
+        const userFirst = await prisma.user.update({
+          where:{ id:userId },
+          data:{ champ2:champFirst , champ:champTop3 },
+          select:{ champ:true , champ2:true }
+        })
+
+
+        return { message:'User scoer update', user:userFirst }
+
+      }catch(err){
+        console.log('Error in Checking top 3',err)
+        throw err;
+      }
 
 }
