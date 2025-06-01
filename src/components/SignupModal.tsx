@@ -49,7 +49,7 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
     type: 'success' as 'success' | 'error' | 'info'
   });
 
-  const { activeUser, setTempCredentials } =  gameitStore();
+  const { activeUser, setTempCredentials , setUser , removeUser} =  gameitStore();
 
 
   // to update the form 
@@ -114,6 +114,11 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
         const avatarIndex = avatars.indexOf(formData.avatar) + 1;
         let result :any
         if(editProfile){
+
+            if(activeUser){
+              setUser( {...activeUser, username:formData.username , email:formData?.email , avatar:avatarIndex} )
+            }
+
            result = await updateUser({
             id:activeUser?.id,
             username: formData.username,
@@ -197,7 +202,7 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  console.log('this is confusing ig',activeUser?.champ)
+  console.log(' user after update ', activeUser);
 
   return (
     <AnimatePresence>

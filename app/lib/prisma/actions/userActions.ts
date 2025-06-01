@@ -23,6 +23,16 @@ export const createUser = async ({username, email, password, avatar}: USER_INTER
     // Hash the password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const exitingName = await prisma.user.findUnique({
+      where:{
+        username:username
+      }
+    })
+
+    if(exitingName){
+      throw new Error('Username already exists');
+    }
+
     const newUser = await prisma.user.create({
       data: {
         username,
@@ -189,11 +199,14 @@ export const updateUser = async ({ id, username, email, password, avatar }:USER_
         id:true,
         username:true,
         email:true,
-        avatar:true
+        avatar:true,
+        score:true,
+        champ:true,
+        champ2:true
       }
     });
 
-    return { message:'email updated successfully', data : (await validUser).username };
+    return { message:'email updated successfully', data : validUser };
 
    }catch(err){
     console.error(`Error adding email ${err}`);

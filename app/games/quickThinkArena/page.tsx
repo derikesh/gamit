@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, act } from "react";
 import Link from "next/link";
 import ReactConfetti from 'react-confetti';
 
@@ -35,7 +35,7 @@ export default function page() {
     type: 'success' as 'success' | 'error' | 'info'
   });
 
-  const { activeUser } = gameitStore();
+  const { activeUser , setUser } = gameitStore();
 
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
@@ -93,11 +93,8 @@ export default function page() {
 
     setIsGameStarted(true);
     setTime(60);
-    const timerID = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
+    inputRef.current?.focus();
 
-    return ()=> clearTimeout( timerID );
   };
 
   useEffect(() => {
@@ -197,7 +194,8 @@ useEffect(() => {
                     type:'info',
                     message:'New Avatar Unlocked',
                     isVisible:true
-                  })            
+                  });
+                  setUser( {...activeUser , champ:champStatus.user.champ , champ2:champStatus.user.champ2} )
               }
   
             } catch (err) {
