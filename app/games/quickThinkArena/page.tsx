@@ -1,10 +1,9 @@
 'use client'
 
-import React, { useEffect, useState, useRef, act } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import ReactConfetti from 'react-confetti';
 
-import allword from "./filtered_valid_words.json";
 import LeaderboardPage from "@/src/components/LeaderBoardEach";
 import { useSearchParams } from "next/navigation";
 
@@ -15,7 +14,10 @@ import CustomToast from "@/src/components/CustomToast";
 import { checkTop3 } from "@/app/lib/prisma/actions/userActions";
 
 export default function page() {
-  const sets = new Set(allword);
+
+  let sets = useRef<Set<string>> (new Set());
+
+  // let sets = new Set();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -43,9 +45,45 @@ export default function page() {
   });
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const validLetters = ["A","S","R","H","J","K","B","D"];
+  const validLetters = ["A","B","D","G","H","J","K","R","S"];
 
   const param = useSearchParams();
+
+
+  const handleGameRestart = useCallback(() => {
+    try {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+
+      // Reset all game states
+      setTime(60);
+      setScore(0);
+      setArr([]);
+      setUserHighScore(0);
+      setKeyword("");
+      setError("");
+      setFinishGame(false);
+      setIsGameStarted(false);
+      
+    } catch (error) {
+      console.error('Error during game restart:', error);
+      setError('Failed to restart game. Please try again.');
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        handleGameRestart();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [handleGameRestart]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +104,7 @@ export default function page() {
       setError(`Word must start with '${validLetters[index]}'!`);
       return;
     }
-    if (!sets.has(keyword)) {
+    if (!sets.current.has(keyword)) {
       setError("Not a valid word!");
       return;
     }
@@ -85,15 +123,38 @@ export default function page() {
 
   let gameID = Number(param.get('gameId') ?? 0);
 
+  console.log('this is selected alpabet',validLetters[index]);
+  console.log('this is ref ', sets.current);
+
   const handleStartGame = () => {
 
     if(timerRef.current){
       clearInterval(timerRef.current);
     }
 
-    setIsGameStarted(true);
+    async function fetchWord({word}:{word:string}){
+
+      try{
+
+        const data = await fetch(`/data/words/${word.toLowerCase()}.json`);
+        const res = await data.json();
+        sets.current = new Set(res);
+
+      }catch(err){
+        console.log('Error in fetching words');
+      }
+
+    }
+
+    fetchWord( {word:validLetters[index]} );
+
+    const tl =  setTimeout( ()=>{
+      setIsGameStarted(true);
     setTime(60);
     inputRef.current?.focus();
+    } , 600);
+
+    // return ()=>clearTimeout(tl);
 
   };
 
@@ -187,7 +248,6 @@ useEffect(() => {
                 gameId: gameID
               });
 
-              console.log('champ states',champStatus);
   
               if( champStatus.user.champ2 || champStatus.user.champ){
                   setToast({
@@ -344,6 +404,9 @@ useEffect(() => {
                 {timer}s
               </span>
             </div>
+            <p className="text-gray-400 text-sm mt-2 font-geist-mono">
+              Press <span className="text-purple-400 font-bold">Tab</span> to restart game
+            </p>
           </div>
 
 
