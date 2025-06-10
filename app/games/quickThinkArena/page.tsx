@@ -165,7 +165,7 @@ export default function page() {
         setTime((prev) => {
           if (prev <= 1) {
             setIsGameStarted(false);
-            setFinishGame(true)
+            setFinishGame(true);
             return 0;
           }
           return prev - 1;
@@ -205,7 +205,7 @@ useEffect( ()=>{
 
   getScore();
 
-} ,[activeUser?.id]);
+} ,[activeUser?.id , isGameStarted]);
 
 useEffect(() => {
   const handleResize = () => {

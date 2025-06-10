@@ -37,7 +37,7 @@ export default function CustomToast({ message, type, isVisible, onClose , modelO
     if (isVisible && modelOPen) {
       const timer = setTimeout(() => {
         onClose();
-      }, 1300);
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
