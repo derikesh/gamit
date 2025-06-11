@@ -123,7 +123,7 @@ export const currentUser = async () => {
   try {
     const userCookies = (await cookies()).get('gameit_token')?.value;
 
-    if (!userCookies || !tokenSignature) return null;
+    if (!userCookies || !tokenSignature) throw new Error('No token found');
 
     const validToken = jwt.verify(userCookies, tokenSignature) as { userId: number };
 

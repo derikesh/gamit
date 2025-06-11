@@ -1,6 +1,17 @@
 'use client'
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, Suspense } from "react";
+
+
+export default function Page(){
+  return (
+    <Suspense fallback={<div>loading...</div>} >
+      <GameContent/>
+    </Suspense>
+  )
+}
+
+
 import Link from "next/link";
 import ReactConfetti from 'react-confetti';
 
@@ -13,7 +24,7 @@ import CustomToast from "@/src/components/CustomToast";
 
 import { checkTop3 } from "@/app/lib/prisma/actions/userActions";
 
-export default function page() {
+function GameContent() {
 
   let sets = useRef<Set<string>> (new Set());
 
@@ -123,9 +134,6 @@ export default function page() {
 
   let gameID = Number(param.get('gameId') ?? 0);
 
-  console.log('this is selected alpabet',validLetters[index]);
-  console.log('this is ref ', sets.current);
-
   const handleStartGame = () => {
 
     if(timerRef.current){
@@ -222,7 +230,7 @@ useEffect(() => {
 // update the high score if achived
 useEffect(() => {
   async function handleHighScore() {
-    if (finishGame && activeUser?.id && score > userHigheScore) {
+    if (finishGame && activeUser?.id && score > userHigheScore ) {
       try {
         const result = await updateUserHighScore({
           userId: activeUser.id,
@@ -249,7 +257,7 @@ useEffect(() => {
               });
 
   
-              if( champStatus.user.champ2 || champStatus.user.champ){
+              if( champStatus.user.champ2 || champStatus.user.champ ){
                   setToast({
                     type:'info',
                     message:'New Avatar Unlocked',
@@ -281,7 +289,7 @@ useEffect(() => {
 
 
    return (
-    <main className="min-h-screen bg-[#0f172a] p-8">
+     <main className="min-h-screen bg-[#0f172a] p-8">
       {showConfetti && (
         <ReactConfetti
           width={windowSize.width}
@@ -424,7 +432,7 @@ useEffect(() => {
                       setError(""); // Clear error when user types
                     }}
                     onPaste={ (e) => e.preventDefault() }
-                    placeholder="Type a word starting with 'R'..."
+                    placeholder={`Type a word starting with '${validLetters[index]}'...`}
                     className="w-full px-6 py-4 bg-[#1e293b]/50 border border-purple-500/20 rounded-lg text-white font-geist-mono placeholder-gray-500 focus:outline-none focus:border-purple-500/50 transition-all duration-300 focus:shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                   />
                   <button

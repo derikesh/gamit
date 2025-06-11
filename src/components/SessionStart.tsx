@@ -3,26 +3,47 @@
 import {  useEffect } from "react";
 import { gameitStore } from "../store/store";
 
-export function SessionStart( {user}:{user:any} ){
+export function SessionStart(  ){
 
     const { setUser , removeUser } = gameitStore();
 
+    // fetch the user
     useEffect( ()=>{
 
-        if(user?.expired === true){
-            alert('Session Expired, Login in again');
-            removeUser();
+        async function fetchUser(){
+
+           try{
+
+            const res = await fetch('/api/route');
+            const data = await res.json();
+
+            if (data.error === 'Token Expired') {
+                removeUser();
+                alert('Session expired login again')
+                return;
+            }
+
+            if(data.user){
+                setUser(data.user);
+            }
+
+           }catch(err){
+
+            console.error('Authentication failed',err);
+
+           }
+            
         }
 
-        if(user){
-            setUser(user.user);
-        }
+        fetchUser();
 
-    } , [  ])
+    } ,[])
+
+    console.log('this rund');
     
 
-    return(
-        <></>
-    )
+
+
+    return null;
 
 }

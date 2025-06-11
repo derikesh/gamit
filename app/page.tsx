@@ -6,23 +6,12 @@ export default async function Dashboard() {
 
   const upcomingGames = [
     {
-      title: 'Space Invaders',
-      description: 'Defend Earth from alien invasion',
+      title: 'Click Rush',
+      description: ' Compete for the highest CPS !',
       path: '/games/space-invaders',
-      emoji: '👾'
+      emoji: '🖱️'
     },
-    {
-      title: 'Puzzle Quest',
-      description: 'Solve mind-bending puzzles with friends',
-      path: '/games/puzzle-quest',
-      emoji: '🧩'
-    },
-    {
-      title: 'Racing Legends',
-      description: 'Compete in high-speed racing tournaments',
-      path: '/games/racing-legends',
-      emoji: '🏎️'
-    }
+   
   ];
   const allGames = await getGameData();
 

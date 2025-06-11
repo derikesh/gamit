@@ -20,7 +20,6 @@ interface PROP_INTEFACE {
 
 export default function GameCard({ gameData }: PROP_INTEFACE) {
 
-  console.log('this is gamedata',gameData);
   const { activeUser } = gameitStore();
   const [userScore, setUserScore] = useState<number>(0);
 

@@ -202,8 +202,6 @@ export default function SignupModal({ isOpen, onClose, logOpen , editProfile=nul
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  console.log(' user after update ', activeUser);
-
   return (
     <AnimatePresence>
       {isOpen && (

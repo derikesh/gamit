@@ -32,21 +32,21 @@ export default async function RootLayout({
 }>) 
 
 {
- let user;
-  try{
-   user = await currentUser();
-  }catch(err:any){
-    if(err.name==='TokenExpiredError'){
-      (await cookies()).delete('gameit_token');
-    }
-  }
+//  let user;
+  // try{
+  //  user = await currentUser();
+  // }catch(err:any){
+  //   if(err.name==='TokenExpiredError'){
+  //     (await cookies()).delete('gameit_token');
+  //   }
+  // }
 
   return (
     <html lang="en">
       <body
         className={`${orbitron.className} ${geistMono.variable} ${pressStart2P.variable} antialiased`}
       >
-        <SessionStart user={user} key={1} />
+        <SessionStart/>
     <div className="fixed  inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
