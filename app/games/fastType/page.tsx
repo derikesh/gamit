@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import KeyType from "@/src/components/KeyType";
+import GameResult from '@/src/components/GameResult';
 
 // demo strings for random string generation
 const randomWord2 =
@@ -29,6 +30,16 @@ let words = [
 
 export default function page() {
   const [word, setword] = useState<string>("");
+
+  const [gameEnd , setGameEnd] = useState<boolean>(false);
+  const [ finalWpm , setFinalWpm ] = useState(0);
+
+  const handlGameEnd =  (newState:boolean,wpm:number)=>{
+    setGameEnd(newState);
+    setFinalWpm(wpm)
+  } 
+
+  console.log('this is fina finalwpm',finalWpm);
 
   interface ARR_STR {
     arrStr: string[];
@@ -73,9 +84,12 @@ export default function page() {
       </div>
 
       <div className="w-fit max-w-8xl m-auto px-24">
-        <div className="flex items-start flex-col justify-center min-h-[70vh] ">
-          <p className="text-purple-400 mb-4 text-xl">Start Typing</p>
-          <KeyType word={word.toLocaleLowerCase()} />
+        <div className="flex items-start flex-col justify-center min-h-[70vh]">
+          {!gameEnd ? (
+            <KeyType word={word.toLocaleLowerCase()} handlGameEnd={handlGameEnd} />
+          ) : (
+            <GameResult finalWpm={finalWpm} />
+          )}
         </div>
       </div>
     </main>
