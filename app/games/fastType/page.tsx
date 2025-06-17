@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import KeyType from "@/src/components/KeyType";
 import GameResult from '@/src/components/GameResult';
+import { useGameStore } from "@/src/store/gameStore";
 
 // demo strings for random string generation
 const randomWord2 =
@@ -32,14 +33,14 @@ export default function page() {
   const [word, setword] = useState<string>("");
 
   const [gameEnd , setGameEnd] = useState<boolean>(false);
-  const [ finalWpm , setFinalWpm ] = useState(0);
+  // const [ finalWpm , setFinalWpm ] = useState(0);
 
-  const handlGameEnd =  (newState:boolean,wpm:number)=>{
+  const { wpm, resetWpm ,restart } = useGameStore();
+
+  const handlGameEnd =  (newState:boolean)=>{
     setGameEnd(newState);
-    setFinalWpm(wpm)
   } 
 
-  console.log('this is fina finalwpm',finalWpm);
 
   interface ARR_STR {
     arrStr: string[];
@@ -62,14 +63,17 @@ export default function page() {
     };
 
     randomString({ arrStr: words });
-  }, []);
+  }, [restart]);
+
+
+
 
   return (
     <main className="min-h-screen bg-[#0f172a] p-8">
       <div className="max-w-2xl mx-auto">
         {/* Header with Back Button */}
         <div className="flex items-center mb-8">
-          <Link href="/">
+          <Link href="/" onClick={() => resetWpm()}>
             <button className="group relative px-4 py-2 bg-transparent border border-purple-500/20 hover:border-purple-500/50 rounded-lg overflow-hidden transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <span className="relative text-white font-geist-mono text-sm">
@@ -83,12 +87,12 @@ export default function page() {
         </div>
       </div>
 
-      <div className="w-fit max-w-8xl m-auto px-24">
+      <div className="max-w-8xl m-auto px-24">
         <div className="flex items-start flex-col justify-center min-h-[70vh]">
           {!gameEnd ? (
             <KeyType word={word.toLocaleLowerCase()} handlGameEnd={handlGameEnd} />
           ) : (
-            <GameResult finalWpm={finalWpm} />
+            <GameResult finalWpm={wpm} handlGameEnd={handlGameEnd} />
           )}
         </div>
       </div>
