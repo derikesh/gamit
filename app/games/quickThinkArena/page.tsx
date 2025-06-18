@@ -18,8 +18,9 @@ import LeaderboardPage from "@/src/components/LeaderBoardEach";
 import { useSearchParams } from "next/navigation";
 import CustomToast from "@/src/components/CustomToast";
 
-import getScoreHook from "@/src/customHooks/getScore";
-import updateScoreHook from "@/src/customHooks/updateScore";
+import { useGetScore } from "@/src/customHooks/getScore";
+import { useUpdateScore } from "@/src/customHooks/updateScore";
+
 
 const validLetters = ["A","B","D","G","H","J","K","R","S"];
 
@@ -39,6 +40,7 @@ function GameContent() {
   const [error, setError] = useState<string>("");
   const [ score , setScore ] = useState(0);
   const [topScore , setTopScore] = useState(0);
+  const [isScoreLoaded, setIsScoreLoaded] = useState(false);
   // confetti
   const [showConfetti, setShowConfetti] = useState(false);
     // toast state 
@@ -61,17 +63,24 @@ function GameContent() {
 
 
   // custome hook
-  const { userHigheScore  } = getScoreHook(gameID);
-  const { isSuccess , isSuccessChamp } = updateScoreHook({
-            userHighScore: userHigheScore,
-            gameId: gameID,
-            newScore: score,
-            finishGame: finishGame
+  const { userHigheScore  } = useGetScore(gameID);
+
+  // Wait for score to be loaded
+  useEffect(() => {
+    if (userHigheScore > 0) {
+      setIsScoreLoaded(true);
+    }
+  }, [userHigheScore]);
+
+  const { isSuccess , isSuccessChamp } = useUpdateScore({
+    userHighScore: isScoreLoaded ? userHigheScore : 0,
+    gameId: gameID,
+    newScore: score,
+    finishGame: finishGame && isScoreLoaded
   });
 
-  // to check for new highscore and update it
+  // to check for new highscore and update its
   useEffect( ()=>{
-
     if (isSuccess) {
       setScore(score);
       setToast({
@@ -79,23 +88,21 @@ function GameContent() {
           message: 'New High Score!',
           type: 'success'
       });
+      if (score > userHigheScore) {
+        setTopScore(score);
+      }
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
-  }
+    }
 
-  if (isSuccessChamp) {
-    setToast({
+    if (isSuccessChamp) {
+      setToast({
           type: 'info',
           message: 'New Avatar Unlocked',
           isVisible: true
       });
-  }
-
-  if(score > userHigheScore){
-    setTopScore(score)
-  }
-
-  },[isSuccess , isSuccessChamp] );
+    }
+  },[isSuccess , isSuccessChamp, score, userHigheScore] );
 
 
   

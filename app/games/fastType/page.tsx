@@ -89,7 +89,7 @@ export default function page() {
 
       <div className="max-w-8xl m-auto px-24">
         <div className="flex items-start flex-col justify-center min-h-[70vh]">
-          {gameEnd ? (
+          {!gameEnd ? (
             <KeyType word={word.toLocaleLowerCase()} handlGameEnd={handlGameEnd} />
           ) : (
             <GameResult finalWpm={wpm} handlGameEnd={handlGameEnd} />
