@@ -38,7 +38,7 @@ export const getGameData = async ()=>{
             });
             return { messsage:'Retrived Game data' , data :allGames }
         }catch(err){
-                console.error(`Error fetching scores`)
+                console.error(`Error fetching gamedata`)
                 throw err
         }
 

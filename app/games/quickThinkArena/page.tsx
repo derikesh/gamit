@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, Suspense } from "react";
 
-
+// wraping with suspense due to use of search param
 export default function Page(){
   return (
     <Suspense fallback={<div>loading...</div>} >
@@ -14,53 +14,95 @@ export default function Page(){
 
 import Link from "next/link";
 import ReactConfetti from 'react-confetti';
-
 import LeaderboardPage from "@/src/components/LeaderBoardEach";
 import { useSearchParams } from "next/navigation";
-
-import { getUserScore, updateUserHighScore } from "@/app/lib/prisma/actions/scores";
-import { gameitStore } from "@/src/store/store";
 import CustomToast from "@/src/components/CustomToast";
 
-import { checkTop3 } from "@/app/lib/prisma/actions/userActions";
+import getScoreHook from "@/src/customHooks/getScore";
+import updateScoreHook from "@/src/customHooks/updateScore";
+
+const validLetters = ["A","B","D","G","H","J","K","R","S"];
 
 function GameContent() {
 
   let sets = useRef<Set<string>> (new Set());
 
-  // let sets = new Set();
   const inputRef = useRef<HTMLInputElement>(null);
-
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
   const [keyword, setKeyword] = useState("");
   const [arr, setArr] = useState<string[]>([]);
   const [isGameStarted, setIsGameStarted] = useState(false);
+
   const [index, setIndex] = useState<number>(0);
   const [timer, setTime] = useState<number>(60);
   const [ finishGame , setFinishGame ] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [ score , setScore ] = useState(0);
-  const [ userHigheScore , setUserHighScore ] = useState<number>(0);
-  const [toast, setToast] = useState({
-    isVisible: false,
-    message: '',
-    type: 'success' as 'success' | 'error' | 'info'
-  });
-
-  const { activeUser , setUser } = gameitStore();
-
-  const [windowSize, setWindowSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0
-  });
+  const [topScore , setTopScore] = useState(0);
+  // confetti
   const [showConfetti, setShowConfetti] = useState(false);
+    // toast state 
+    const [toast, setToast] = useState({
+      isVisible: false,
+      message: '',
+      type: 'success' as 'success' | 'error' | 'info'
+    });
+  
+    // used for confetti
+    const [windowSize, setWindowSize] = useState({
+      width: typeof window !== 'undefined' ? window.innerWidth : 0,
+      height: typeof window !== 'undefined' ? window.innerHeight : 0
+    });
 
-  const validLetters = ["A","B","D","G","H","J","K","R","S"];
 
   const param = useSearchParams();
 
+  let gameID = Number(param.get('gameId') ?? 0);
 
+
+  // custome hook
+  const { userHigheScore  } = getScoreHook(gameID);
+  const { isSuccess , isSuccessChamp } = updateScoreHook({
+            userHighScore: userHigheScore,
+            gameId: gameID,
+            newScore: score,
+            finishGame: finishGame
+  });
+
+  // to check for new highscore and update it
+  useEffect( ()=>{
+
+    if (isSuccess) {
+      setScore(score);
+      setToast({
+          isVisible: true,
+          message: 'New High Score!',
+          type: 'success'
+      });
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
+  }
+
+  if (isSuccessChamp) {
+    setToast({
+          type: 'info',
+          message: 'New Avatar Unlocked',
+          isVisible: true
+      });
+  }
+
+  if(score > userHigheScore){
+    setTopScore(score)
+  }
+
+  },[isSuccess , isSuccessChamp] );
+
+
+  
+
+  // to get gameid out from url
+
+// restart the game
   const handleGameRestart = useCallback(() => {
     try {
       if (timerRef.current) {
@@ -72,7 +114,7 @@ function GameContent() {
       setTime(60);
       setScore(0);
       setArr([]);
-      setUserHighScore(0);
+      // setUserHighScore(0);
       setKeyword("");
       setError("");
       setFinishGame(false);
@@ -84,6 +126,8 @@ function GameContent() {
     }
   }, []);
 
+
+  // use to restart the game
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {
@@ -132,8 +176,8 @@ function GameContent() {
     setError("");
   };
 
-  let gameID = Number(param.get('gameId') ?? 0);
 
+  // function to fetch all valid wrods and start the game for quic think arena
   const handleStartGame = () => {
 
     if(timerRef.current){
@@ -162,10 +206,11 @@ function GameContent() {
     inputRef.current?.focus();
     } , 600);
 
-    // return ()=>clearTimeout(tl);
 
   };
 
+
+  // timer component 
   useEffect(() => {
     if (!isGameStarted ) return;
 
@@ -189,32 +234,8 @@ function GameContent() {
       
   }, [isGameStarted]);
 
-// check the score
-useEffect( ()=>{
 
-  async function getScore(){
-
-      if(!activeUser?.id){
-        return null;
-      }
-
-      try {
-
-        const scoreValue = await getUserScore({userId:activeUser?.id,gameId:gameID});
-        if(scoreValue){
-          setUserHighScore(scoreValue.score);
-        }
-
-      } catch(err){
-        console.log('Error in fetching score',err);
-        throw err;
-      } 
-  }
-
-  getScore();
-
-} ,[activeUser?.id , isGameStarted]);
-
+// for confeti
 useEffect(() => {
   const handleResize = () => {
     setWindowSize({
@@ -227,65 +248,6 @@ useEffect(() => {
   return () => window.removeEventListener('resize', handleResize);
 }, []);
 
-// update the high score if achived
-useEffect(() => {
-  async function handleHighScore() {
-    if (finishGame && activeUser?.id && score > userHigheScore ) {
-      try {
-        const result = await updateUserHighScore({
-          userId: activeUser.id,
-          gameId: gameID,
-          newScore: score
-        });
-
-        if (result.success) {
-          setUserHighScore(Number(result.score));
-          setToast({
-            isVisible: true,
-            message: 'New High Score!',
-            type: 'success'
-          });
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 5000);
-
-          // Check if user is top 3 or top 1 and update champ flags
-          if( !activeUser.champ || !activeUser.champ2 ){
-             try {
-              const champStatus = await checkTop3({
-                userId: activeUser.id,
-                gameId: gameID
-              });
-
-  
-              if( champStatus.user.champ2 || champStatus.user.champ ){
-                  setToast({
-                    type:'info',
-                    message:'New Avatar Unlocked',
-                    isVisible:true
-                  });
-                  setUser( {...activeUser , champ:champStatus.user.champ , champ2:champStatus.user.champ2} )
-              }
-  
-            } catch (err) {
-              console.error('Error checking top 3:', err);
-              throw err;
-            }
-          }
-        }
-
-      } catch (error) {
-        console.error('Error updating high score:', error);
-        setToast({
-          isVisible: true,
-          message: 'Failed to update high score',
-          type: 'error'
-        });
-      }
-    }
-  }
-
-  handleHighScore();
-}, [finishGame, score, userHigheScore, activeUser?.id, gameID]);
 
 
    return (
@@ -477,7 +439,7 @@ useEffect(() => {
            gameId={gameID} 
            isGameStarted={isGameStarted} 
            finishGame={finishGame}
-           newHighScore={userHigheScore} 
+           newHighScore={topScore} 
          />
          <CustomToast
            isVisible={toast.isVisible}

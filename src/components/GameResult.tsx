@@ -1,12 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import Leaderboard from './Leaderboard';
 import { useGameStore } from '../store/gameStore';
 import LeaderboardPage from './LeaderBoardEach';
+import { gameitStore } from '../store/store';
+
+
+// server actions
+import { getUserScore } from '@/app/lib/prisma/actions/scores';
 
 export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, handlGameEnd:(value:any)=>void}) {
   const[ result , setResult ] = useState<number>();
   const[finish , setFinish ] = useState<boolean>(false);
   const { resetWpm, setRestart, restart } = useGameStore();
+
+  // user global state
+  const { activeUser  } = gameitStore();
+
+  // user state
+  const [userScore , setUserScore] = useState<number>(0);
+  const [ newHighScore , setNewHighScore ] = useState<number>(0);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -18,11 +29,11 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
         resetWpm();
       }
     };
-
+    
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [restart]);
-
+  
   useEffect(() => {
     const totalCharacters = finalWpm;
     const timeInSeconds = 20;
@@ -30,13 +41,34 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
     setResult(wpm);
     setFinish(true);
   }, []);
-
+  
   useEffect(() => {
     if(finish){
       resetWpm();
     }
   }, [finish]);
+  
 
+  console.log('this is user',activeUser?.id);
+
+  // scoring and saving in server components
+  useEffect( ()=>{
+    const fnc = async  ()=>{
+      if(!activeUser?.id) return;
+      try{
+        const res = await getUserScore( {userId :activeUser?.id ,gameId: 2} );
+        if(res){
+          setUserScore(res.score);
+        }
+      }catch(err){
+        console.error('Error fetching user score',err);
+      }
+    }
+    fnc();
+  } ,[])
+  
+
+  
   return (
     <div className="flex flex-col gap-8 w-full py-10">
       {/* Results Section */}
@@ -56,7 +88,7 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
       {/* Leaderboard Section */}
       <div className="w-full">
       <LeaderboardPage 
-           gameId={1} 
+           gameId={2} 
            isGameStarted={false} 
            finishGame={true}
            newHighScore={10} 

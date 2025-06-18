@@ -58,7 +58,7 @@ export default function LeaderboardPage({ gameId, isGameStarted, finishGame, new
     }
 
     fetchLeaderboard();
-  }, [gameId, newHighScore]);
+  }, [gameId, newHighScore,finishGame]);
 
   if (isLoading) {
     return (

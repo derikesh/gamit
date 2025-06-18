@@ -8,7 +8,7 @@ interface TIMER_INTERFACE {
 }
 
 export default function TimerComponent({ gameStart, setGameStart, endGame }: TIMER_INTERFACE) {
-    const [time, setTime] = useState<number>(8);
+    const [time, setTime] = useState<number>(20);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
