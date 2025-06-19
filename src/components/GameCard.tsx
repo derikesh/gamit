@@ -98,7 +98,7 @@ export default function GameCard({ gameData }: PROP_INTEFACE) {
 
       {/* Leaderboard */}
       <div className="w-full lg:w-[300px] mt-6 lg:mt-0">
-        <Leaderboard leaderBoard={gameData.leaderBoard} />
+        <Leaderboard gameId={gameData.id} />
       </div>
     </div>
   );

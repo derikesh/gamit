@@ -1,19 +1,41 @@
-import { USER_INTERFACE } from "../interface/dataInterface"
+'use client';
 
-interface SCORETABLE_INTERFACE {
-  id:number,
-  userId:number,
-  gameId:number,
-  score:number,
-  user:USER_INTERFACE
+import { useEffect, useState } from "react";
+
+// Custom hook to fetch leaderboard data
+import { gameIdScore } from "@/app/lib/prisma/actions/scores";
+
+function useFetchLeaderboard(gameId: number) {
+  const [leaderBoard, setLeaderBoard] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await gameIdScore({ gameId });
+        setLeaderBoard(res?.data?.leaderBoard || []);
+      } catch (err: any) {
+        setError("Failed to fetch leaderboard");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [gameId]);
+
+  return { leaderBoard, loading, error };
 }
+
 
 interface LeaderboardProps {
-  leaderBoard: SCORETABLE_INTERFACE[];
+  gameId: number;
 }
 
-export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
-
+export default function Leaderboard({ gameId }: LeaderboardProps) {
+  const { leaderBoard, loading, error } = useFetchLeaderboard(gameId);
 
   const getRankEmoji = (index: number) => {
     switch (index) {
@@ -28,6 +50,8 @@ export default function Leaderboard({ leaderBoard }: LeaderboardProps) {
     }
   };
 
+  if (loading) return <div className="text-gray-400">Loading leaderboard...</div>;
+  if (error) return <div className="text-red-400">{error}</div>;
 
   return (
     <div className="bg-[#1e293b]/50 rounded-lg p-4 border border-purple-500/20">
