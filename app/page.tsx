@@ -2,6 +2,8 @@ import NavHeader from "@/src/components/NavHeader";
 import GameCard from "@/src/components/GameCard";
 import { getGameData } from "./lib/prisma/actions/scores";
 
+export const revalidate = 10; 
+
 export default async function Dashboard() {
 
   const upcomingGames = [
@@ -13,6 +15,8 @@ export default async function Dashboard() {
     },
    
   ];
+
+  
   const allGames = await getGameData();
 
   return (
