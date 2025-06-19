@@ -39,9 +39,6 @@ export function SessionStart(  ){
 
     } ,[])
 
-    console.log('this rund');
-    
-
 
 
     return null;

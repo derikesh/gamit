@@ -3,7 +3,6 @@ import { useGameStore } from '../store/gameStore';
 import LeaderboardPage from './LeaderBoardEach';
 import { gameitStore } from '../store/store';
 import CustomToast from './CustomToast';
-import { useGetScore } from '../customHooks/getScore';
 import { useUpdateScore } from '../customHooks/updateScore';
 import Confetti from 'react-confetti';
 
@@ -15,11 +14,10 @@ interface ToastState {
   type: ToastType;
 }
 
-export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, handlGameEnd:(value:any)=>void}) {
+export default function GameResult({finalWpm, handlGameEnd, userHigheScore}:{finalWpm:number, handlGameEnd:(value:any)=>void, userHigheScore:number}) {
   const[ result , setResult ] = useState<number>();
   const[finish , setFinish ] = useState<boolean>(false);
   const [ topScore , setTopScore ] = useState<number>(0);
-  const [isScoreLoaded, setIsScoreLoaded] = useState(false);
 
   const { resetWpm, setRestart, restart } = useGameStore();
   const [showConfetti, setShowConfetti] = useState(false);
@@ -32,21 +30,11 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
   });
 
-  // custom hooks
-  const { userHigheScore, setUserHigheScore } = useGetScore(2);
-
-  // Wait for score to be loaded
-  useEffect(() => {
-    if (userHigheScore > 0) {
-      setIsScoreLoaded(true);
-    }
-  }, [userHigheScore]);
-
   const { isSuccess, isSuccessChamp } = useUpdateScore({
-    userHighScore: isScoreLoaded ? userHigheScore : 0,
+    userHighScore: userHigheScore,
     gameId: 2,
     newScore: result || 0,
-    finishGame: finish && isScoreLoaded
+    finishGame: finish
   });
 
   useEffect(() => {
@@ -77,9 +65,10 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
   }, [restart]);
   
   useEffect(() => {
-    const totalCharacters = finalWpm;
-    const timeInSeconds = 20;
-    const wpm = Math.floor((totalCharacters / 5) * (60 / timeInSeconds));
+    const totalCharacters = finalWpm + 3;
+    console.log('each words',totalCharacters);  
+    const timeInSeconds = 15;
+    const wpm = Math.ceil((totalCharacters / 5) * (60 / timeInSeconds));
     setResult(wpm);
     setFinish(true);
   }, []);
@@ -87,7 +76,7 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
   // Handle success states
   useEffect(() => {
     if (isSuccess && result) {
-      setUserHigheScore(result);
+      setTopScore(result);
       setToast({
         isVisible: true,
         message: 'New High Score!',
@@ -108,6 +97,8 @@ export default function GameResult({finalWpm, handlGameEnd}:{finalWpm:number, ha
       });
     }
   }, [isSuccess, isSuccessChamp, result, userHigheScore]);
+
+
   
   return (
     <div className="flex flex-col gap-8 w-full py-10">

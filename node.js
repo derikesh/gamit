@@ -10,4 +10,3 @@ const filtered = words.filter(word =>
 );
 
 fs.writeFileSync('filtered_words_b.json', JSON.stringify(filtered, null, 2));
-console.log('Done!');

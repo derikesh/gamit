@@ -3,13 +3,15 @@ import { useGameStore } from '@/src/store/gameStore'
 
 interface TIMER_INTERFACE {
     gameStart: boolean,
-    setGameStart: () => void;
+    setGameStart: (bol:boolean) => void;
     endGame: () => void
 }
 
 export default function TimerComponent({ gameStart, setGameStart, endGame }: TIMER_INTERFACE) {
-    const [time, setTime] = useState<number>(20);
+    const [time, setTime] = useState<number>(15);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const { restart } = useGameStore();
 
     useEffect(() => {
         if (!gameStart) return;
@@ -27,9 +29,13 @@ export default function TimerComponent({ gameStart, setGameStart, endGame }: TIM
         };
     }, [gameStart]);
 
+    useEffect( ()=>{
+        setTime(15);
+    } ,[restart])
+
     useEffect(() => {
         if (time <= 0 && gameStart) {
-            setGameStart();
+            setGameStart(false);
             endGame();
             if (timerRef.current) {
                 clearInterval(timerRef.current);

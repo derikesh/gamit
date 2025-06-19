@@ -5,6 +5,7 @@ import Link from "next/link";
 import KeyType from "@/src/components/KeyType";
 import GameResult from '@/src/components/GameResult';
 import { useGameStore } from "@/src/store/gameStore";
+import { useGetScore } from '@/src/customHooks/getScore';
 
 // demo strings for random string generation
 const randomWord2 =
@@ -33,14 +34,23 @@ export default function page() {
   const [word, setword] = useState<string>("");
 
   const [gameEnd , setGameEnd] = useState<boolean>(false);
-  // const [ finalWpm , setFinalWpm ] = useState(0);
+  const [ isScoreLoaded , setIsScoreLoaded ] = useState<boolean>(false);
 
   const { wpm, resetWpm ,restart } = useGameStore();
+  const { userHigheScore } = useGetScore(2);
 
   const handlGameEnd =  (newState:boolean)=>{
     setGameEnd(newState);
   } 
 
+
+  useEffect( ()=>{
+
+    if( userHigheScore> 0){
+      setIsScoreLoaded(true);
+    }
+
+  } ,[gameEnd]);
 
   interface ARR_STR {
     arrStr: string[];
@@ -92,7 +102,7 @@ export default function page() {
           {!gameEnd ? (
             <KeyType word={word.toLocaleLowerCase()} handlGameEnd={handlGameEnd} />
           ) : (
-            <GameResult finalWpm={wpm} handlGameEnd={handlGameEnd} />
+            <GameResult finalWpm={wpm} handlGameEnd={handlGameEnd} userHigheScore={isScoreLoaded ? userHigheScore : 0} />
           )}
         </div>
       </div>

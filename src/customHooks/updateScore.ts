@@ -56,16 +56,13 @@ export function useUpdateScore({ userHighScore, gameId, newScore, finishGame }: 
             }
         }
 
-        console.log('before compare',userHighScore);
+        console.log('update score inital',userHighScore);
 
         if (finishGame && newScore > userHighScore) {
             handleHighScore();
         }else{
           setIsSuccess(false);
         }
-
-        console.log( 'new score : ',newScore );
-        console.log( 'user sscore : ',userHighScore );
 
 
     }, [finishGame, userHighScore, activeUser?.id, gameId, newScore, setUser]);

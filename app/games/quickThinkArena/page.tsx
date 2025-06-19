@@ -76,7 +76,7 @@ function GameContent() {
     userHighScore: isScoreLoaded ? userHigheScore : 0,
     gameId: gameID,
     newScore: score,
-    finishGame: finishGame && isScoreLoaded
+    finishGame: finishGame 
   });
 
   // to check for new highscore and update its
